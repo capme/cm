@@ -21,7 +21,7 @@ class SalesOrderController extends Controller
 	 * @param string $apikey
 	 * @return void
 	 */
-	public function getOrder($apikey)
+	public function getOrder()
 	{
 		
 		$url = 'http://api.elevenia.co.id/rest/orderservices/orders?ordStat=202&dateFrom=2015/01/01&dateTo=2015/12/07';
