@@ -15,6 +15,9 @@ $app->get('/', function () use ($app) {
     return "Micro Bridge Elevania!";
 });
 
+/**
+ * Sales Order endpoint
+ */
 $app->get('api/v1/sales_order','SalesOrderController@getOrder');
 $app->post('api/v1/sales_order','SalesOrderController@createOrder');
 
