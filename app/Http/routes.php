@@ -12,5 +12,16 @@
 */
 
 $app->get('/', function () use ($app) {
-    return $app->welcome();
+    return "Micro Bridge Elevania!";
+});
+
+$app->get('api/v1/sales_order','SalesOrderController@getOrder');
+$app->post('api/v1/sales_order','SalesOrderController@createOrder');
+
+
+/*
+ * Temporary route to generate random key
+ */
+$app->get('/key', function() {
+	return str_random(32);
 });

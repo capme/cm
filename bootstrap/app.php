@@ -19,9 +19,16 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
-// $app->withFacades();
 
-// $app->withEloquent();
+
+/*
+ * Register Eloquent Model and Query builder with support for MongoDB
+ */
+$app->register('Jenssegers\Mongodb\MongodbServiceProvider');
+
+$app->withFacades();
+
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
