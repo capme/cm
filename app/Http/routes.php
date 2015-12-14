@@ -16,10 +16,13 @@ $app->get('/', function () use ($app) {
 });
 
 /**
- * Sales Order endpoint
+ * Sales Order
  */
-$app->get('api/v1/sales_order','SalesOrderController@getOrder');
-$app->post('api/v1/sales_order','SalesOrderController@createOrder');
+$app->get('api/v1/sales/order/{api_key}','SalesController@order');
+
+/**
+ * Shipping Order 
+ */
 
 
 /*
