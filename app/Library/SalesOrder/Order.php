@@ -6,42 +6,84 @@ use SimpleXMLElement;
 use GuzzleHttp\Client;
 
 use App\Model\Partner;
+use App\Model\SalesOrder;
 
 
 
 class Order
 {
-	protected $client;
-	protected $order_url;
+	public $apiKey;
 	
+	private $client;
+	private $baseUrl;
+	
+	/**
+	 * Initiate
+	 * @param string $apiKey
+	 * @var $client Guzzle Object
+	 * @var $base_url elevenia base url 
+	 * @return void
+	 */
 	public function __construct()
 	{
 		$this->client = new Client();
-		$this->url = 'http://api.elevenia.co.id/rest/orderservices/orders?ordStat=202&dateFrom=2015/01/01&dateTo=2015/12/30'; 
+		$this->baseUrl = 'http://api.elevenia.co.id/rest';
 	}
 	
 	/**
-	 * Format order from elevenia
-	 * @param array
+	 * Accept Order
+	 * @param array $input
+	 * @return array
 	 */
-	private function formatOrder($order)
+	public function accept($input)
 	{
-		// TODO - format order to be follow with fulfillment format
-		return $order;
+		$url = $this->baseUrl . '/orderservices/orders/accept?'
+				. 'ordNo=.'. $input['ordNo'] .'&ordPrdSeq=' . $input['ordPrdSeq'];
+		
+		$res = $this->client->request('GET', $url,[
+			'headers' => ['openapikey' => $input['apiKey']],
+		]);
+		
+		return $res->getBody();
+	}
+	
+	/**
+	 * Update AWB
+	 * @return array
+	 */
+	public function updateAWB($param)
+	{
+		
+	}
+	
+	/**
+	 * Cancellation Product
+	 * @return array
+	 */
+	public function cancel()
+	{
+		$url = $this->base_url . '/claimservice/reqrejectorder?'
+			. 'orderNo=';
+		
 	}
 	
 	/**
 	 * Get order data from elevenia
-	 * @param string $api_key
+	 * @param array $input
 	 * @return array
 	 */
-	public function get($api_key)
+	public function get($input)
 	{
-		$res = $this->client->request('GET',$this->url,[
-			'headers' => [
-				'openapikey' => $api_key
-			]
+		
+		$url = $this->baseUrl . '/orderservices/orders?'
+			. 'ordStat=202&dateFrom='
+			. $this->eleveniaDate($input['dateFrom'])
+			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
+		
+		$res = $this->client->request('GET',$url,[
+			'headers' => ['openapikey' => $input['apiKey']]
 		]);
+		
 		$xml = $res->getBody();
 		$order = new SimpleXMLElement($xml);
 		
@@ -51,10 +93,72 @@ class Order
 	/**
 	 * Save formated order to mongodb
 	 * @param array $order
+	 * @return void
 	 */
 	public function save($order)
 	{
-		$order = $this->formatOrder($order); // format order
-		// TODO - save to mongodb
+		
+		SalesOrder::raw()->insert($order);
+		return $order;
+	}
+	
+	private function eleveniaDate($date)
+	{
+		return str_replace('-', '/', $date);
+	}
+	
+	/**
+	 * Parse order data
+	 * @param array $order
+	 * @return array
+	 */
+	private function parseOrder($order)
+	{
+		return [
+			'elevenia' => $order, 
+			'amp' => [
+				'order_id' => '81729387',
+				'orderCreatedTime' => '2015-06-18T10:30:40Z',
+				'customerInfo' => [
+					'addressee' => 'Dan Happiness',
+					'address1' => '964 Rama 4 Road',
+					'province' => 'Bangkok',
+					'postalCode' => '10500',
+					'country' => 'Thailand',
+					'phone' => '081-000-0000',
+					'email' => ''
+				],
+				'orderShipmentInfo' => [
+					'addressee' => 'Smith Happiness',
+					'address1' => '111 Rama 4 rd.',
+					'address2' => '',
+					'subDistrict' => 'Bangrak',
+					'city' => '',
+					'province' => 'Bangkok',
+					'postalCode' => '10500',
+					'country' => 'Thailand',
+					'phone' => '081-111-2222',
+					'email' => "smith@a.com"
+				],
+				'paymentType' => 'COD',
+				'shippingType' => 'STANDARD_2_4_DAYS',
+				'grossTotal' => 12800,
+				'currUnit' => 'THB',
+				'orderItems' => [
+					[
+						'partnerId' => 'maybelline',
+						'itemId' => 'NIK64254110000000M',
+						'qty' => 2,
+						'subTotal' => 6000
+					],
+					[
+						'partnerId' => 'maybelline',
+						'itemId' => 'NIK64254110000000M',
+						'qty' => 2,
+						'subTotal' => 6000
+					]
+				]
+			]
+		];
 	}
 }
