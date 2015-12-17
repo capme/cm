@@ -1,6 +1,4 @@
-.settings
+.idea
 .DS_STORE
-.project
-.buildpath
 /vendor
 .env

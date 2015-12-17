@@ -19,9 +19,9 @@ $app->get('/', function () use ($app) {
  * Sales Order
  */
 $app->get('api/v1/sales-order','SalesOrderController@get');
-$app->get('api/v1/sales-order/update-rwb','SalesOrderController@updateRWB');
+$app->get('api/v1/sales-order/update-awb','SalesOrderController@updateAWB');
 $app->get('api/v1/sales-order/accept','SalesOrderController@accept');
-$app->get('api/v1/sales-order/cancel','SalesOrderController@cancle');
+$app->get('api/v1/sales-order/cancel','SalesOrderController@cancel');
 
 
 /**

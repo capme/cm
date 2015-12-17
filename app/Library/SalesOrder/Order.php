@@ -5,25 +5,13 @@ namespace App\Library\SalesOrder;
 use SimpleXMLElement;
 use GuzzleHttp\Client;
 
-use App\Model\Partner;
 use App\Model\SalesOrder;
-
-
 
 class Order
 {
-	public $apiKey;
-	
 	private $client;
 	private $baseUrl;
-	
-	/**
-	 * Initiate
-	 * @param string $apiKey
-	 * @var $client Guzzle Object
-	 * @var $base_url elevenia base url 
-	 * @return void
-	 */
+
 	public function __construct()
 	{
 		$this->client = new Client();
@@ -49,9 +37,10 @@ class Order
 	
 	/**
 	 * Update AWB
+	 * @param array $input
 	 * @return array
 	 */
-	public function updateAWB($param)
+	public function updateAWB($input)
 	{
 		
 	}
@@ -62,7 +51,7 @@ class Order
 	 */
 	public function cancel()
 	{
-		$url = $this->base_url . '/claimservice/reqrejectorder?'
+		$url = $this->baseUrl . '/claimservice/reqrejectorder?'
 			. 'orderNo=';
 		
 	}
@@ -76,7 +65,7 @@ class Order
 	{
 		
 		$url = $this->baseUrl . '/orderservices/orders?'
-			. 'ordStat=202&dateFrom='
+			. 'ordStat=301&dateFrom='
 			. $this->eleveniaDate($input['dateFrom'])
 			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
 		
@@ -97,8 +86,10 @@ class Order
 	 */
 	public function save($order)
 	{
-		
+		$order = $this->parseOrder($order);
+
 		SalesOrder::raw()->insert($order);
+
 		return $order;
 	}
 	
@@ -117,7 +108,7 @@ class Order
 		return [
 			'elevenia' => $order, 
 			'amp' => [
-				'order_id' => '81729387',
+				'order_id' => $order['ordNo'],
 				'orderCreatedTime' => '2015-06-18T10:30:40Z',
 				'customerInfo' => [
 					'addressee' => 'Dan Happiness',
