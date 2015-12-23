@@ -7,6 +7,11 @@ use GuzzleHttp\Client;
 
 use App\Model\SalesOrder;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
+
 class Order
 {
 	private $client;
@@ -37,19 +42,29 @@ class Order
 			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
 		
 		if(!isset($input['connect_timeout'])){
-			$input['connect_timeout'] = 0;
+			$input['connect_timeout'] = 3600;
 		}
-
-		$res = $this->client->request('GET',$url,[
-			'headers' => ['openapikey' => $input['apiKey'],
-			'connect_timeout' => $input['connect_timeout']
-			]
-		]);
+		try{
+			$res = $this->client->request('GET',$url,[
+				'headers' => ['openapikey' => $input['apiKey']],
+				'connect_timeout' => $input['connect_timeout'],
+				'timeout' => $input['connect_timeout']
+			]);
+			$xml = $res->getBody();
+			$order = new SimpleXMLElement($xml);
+            $response = [
+                'message' => $order,
+                'code' => '200'
+            ];
+        } catch (RequestException $e) {
+            $response = [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ];
+		}
 		
-		$xml = $res->getBody();
-		$order = new SimpleXMLElement($xml);
 		
-		return $order;
+		return $response;
 	}
 	
 	private function eleveniaDate($date)
