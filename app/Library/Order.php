@@ -25,7 +25,6 @@ class Order
 		}else{
 			$this->baseUrl = 'http://api.elevenia.co.id/rest';
 		}
-		//$this->baseUrl = 'http://api.elevenia.co.id/rest';
 	}
 	
 	/**
@@ -54,7 +53,7 @@ class Order
 			$order = new SimpleXMLElement($xml);
             $response = [
                 'message' => $order,
-                'code' => '200'
+                'code' => $res->getStatusCode()
             ];
         } catch (RequestException $e) {
             $response = [
