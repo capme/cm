@@ -2,6 +2,7 @@
 
 namespace App\Library;
 
+use GuzzleHttp\Psr7\Response;
 use SimpleXMLElement;
 use GuzzleHttp\Client;
 
@@ -14,21 +15,15 @@ use GuzzleHttp\Exception\ServerException;
 
 class Order
 {
-	private $client;
-	private $baseUrl;
+	public $client;
+	public $baseUrl;
 
-	public function __construct($url=null, Client $client=null)
+	public function __construct()
 	{
-		if(!is_null($client)){
-			$this->client = $client;
-		}else {
-			$this->client = new Client();
-		}
-		if(!is_null($url)){
-			$this->baseUrl = $url;
-		}else{
-			$this->baseUrl = 'http://api.elevenia.co.id/rest';
-		}
+
+		$this->client = new Client();
+		$this->baseUrl = 'http://api.elevenia.co.id/rest';
+
 	}
 	
 	/**
@@ -55,9 +50,12 @@ class Order
 				'timeout' => $input['connect_timeout']
 			]);
 			$xml = $res->getBody();
+
 			$order = new SimpleXMLElement($xml);
-            $response = [
-                'message' => json_decode(json_encode((array)$order), TRUE),
+
+
+			$response = [
+                'message' => json_decode(json_encode($order), true),
                 'code' => $res->getStatusCode()
             ];
         } catch (RequestException $e) {
@@ -69,6 +67,11 @@ class Order
 		
 		
 		return $response;
+	}
+
+	public function xmlToArray(Response $res)
+	{
+
 	}
 
 	/**
@@ -93,7 +96,7 @@ class Order
 			$xml = $res->getBody();
 			$order = new SimpleXMLElement($xml);
             $response = [
-                'message' => $order,
+                'message' => json_decode(json_encode($order), true),
                 'code' => $res->getStatusCode()
             ];
         } catch (RequestException $e) {
@@ -135,7 +138,7 @@ class Order
 			$xml = $res->getBody();
 			$order = new SimpleXMLElement($xml);
 			$response = [
-				'message' => $order,
+				'message' => json_decode(json_encode($order), true),
 				'code' => $res->getStatusCode()
 			];
 		} catch (RequestException $e) {
