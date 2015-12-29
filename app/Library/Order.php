@@ -152,6 +152,47 @@ class Order
 		return $response;
 	}
 
+	/**
+	 *Send Cancel order to elevenia
+	 */
+	public function setCancel($input)
+	{
+		$url = $this->baseUrl . '/orderservices/order/reject?'
+			. 'dlvNo=' . $input['dlvNo']
+			. '&ordNo=' . $input['ordNo']
+			. '&ordPrdSeq=' . $input['ordPrdSeq']
+			. '&message=' . $input['message']
+			. '&ordCnRsnCd=' . $input['ordCnRsnCd']
+			. '&ordQty=' . $input['ordQty']
+		;
+
+		if(!isset($input['connect_timeout'])){
+			$input['connect_timeout'] = 3600;
+		}
+
+		try{
+			$res = $this->client->request('POST',$url,[
+				'headers' => ['openapikey' => $input['apiKey']],
+				'connect_timeout' => $input['connect_timeout'],
+				'timeout' => $input['connect_timeout']
+			]);
+			$xml = $res->getBody();
+			$order = new SimpleXMLElement($xml);
+			$response = [
+				'message' => json_decode(json_encode($order), true),
+				'code' => $res->getStatusCode()
+			];
+		} catch (RequestException $e) {
+			$response = [
+				'message' => $e->getMessage(),
+				'code' => $e->getCode()
+			];
+		}
+
+
+		return $response;
+	}
+
 	private function eleveniaDate($date)
 	{
 		return str_replace('-', '/', $date);
