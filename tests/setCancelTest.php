@@ -24,7 +24,7 @@ class setCancelTest extends TestCase
     }
 
     public function testSuccess(){
-        $param = array("dlvNo" => "8000028265", "ordNo" => "201512286029293", "ordPrdSeq" => "1", "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1", "apiKey" => "fe868c8788f602061778b49949cf3643", "connect_timeout" => "2");
+        $param = array("dlvNo" => "8000028448", "ordNo" => "201512296037598", "ordPrdSeq" => "1", "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1", "apiKey" => "fe868c8788f602061778b49949cf3643", "connect_timeout" => "2");
         $order = new Order();
 
         $xml = "<ClientMessage><productNo>xxxxxxx</productNo><message>Order: ".$param['ordNo']." has been cancelled.</message><resultCode>200</resultCode></ClientMessage>";
@@ -32,6 +32,7 @@ class setCancelTest extends TestCase
             new Response(200, [], $xml)
         ]);
         $ret = $order->setCancel($param);
+        //print_r($ret);
         $array = json_decode(json_encode((array)$ret['message']), TRUE);
         $this->assertArrayHasKey("productNo", $array);
     }
