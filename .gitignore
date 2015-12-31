@@ -1,5 +1,7 @@
 .settings
 .project
 .buildpath
+.idea
 /vendor
+composer.lock
 .env
