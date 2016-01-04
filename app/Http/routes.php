@@ -14,24 +14,3 @@
 $app->get('/', function () use ($app) {
     return "Micro Bridge Elevania!";
 });
-
-/**
- * Sales Order
- */
-$app->get('api/v1/sales-order','SalesOrderController@get');
-$app->get('api/v1/sales-order/update-awb','SalesOrderController@updateAWB');
-$app->get('api/v1/sales-order/accept','SalesOrderController@accept');
-$app->get('api/v1/sales-order/cancel','SalesOrderController@cancel');
-
-
-/**
- * Shipping Order 
- */
-
-
-/*
- * Temporary route to generate random key
- */
-$app->get('/key', function() {
-	return str_random(32);
-});

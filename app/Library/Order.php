@@ -3,58 +3,39 @@
 namespace App\Library;
 
 use SimpleXMLElement;
+
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\ConnectException;
 
 
 class Order
 {
 	public $client;
-	public $baseUrl;
 
-	public function __construct()
+	private $baseUrl;
+	private $timeout;
+	private $token;
+
+	public function __construct($token, $baseUrl='http://api.elevenia.co.id/rest', $timeout=10)
 	{
-
 		$this->client = new Client();
-		$this->baseUrl = 'http://api.elevenia.co.id/rest';
+		$this->baseUrl = $baseUrl;
+		$this->timeout = $timeout;
+		$this->token = $token;
 	}
 
 	public function get($input)
 	{
-		
 		$url = $this->baseUrl . '/orderservices/orders?'
 			. 'ordStat='.$input['ordStat'].'&dateFrom='
 			. $this->eleveniaDate($input['dateFrom'])
 			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
-		
-		if(!isset($input['connect_timeout'])){
-			$input['connect_timeout'] = 3600;
-		}
-		
-		try{
-			$res = $this->client->request('GET',$url,[
-				'headers' => ['openapikey' => $input['apiKey']],
-				'connect_timeout' => $input['connect_timeout'],
-				'timeout' => $input['connect_timeout']
-			]);
-			$xml = $res->getBody();
 
-			$order = new SimpleXMLElement($xml);
-
-
-			$response = [
-                'message' => json_decode(json_encode($order), true),
-                'code' => $res->getStatusCode()
-            ];
-        } catch (RequestException $e) {
-            $response = [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode()
-            ];
-		}
+		$res = $this->request('GET', $url);
 		
-		
-		return $response;
+		return $res;
 	}
 
 	public function accept($input)
@@ -63,31 +44,9 @@ class Order
 		. 'ordNo=' . $input['ordNo']
 		. '&ordPrdSeq=' . $input['ordPrdSeq'];
 
-		if(!isset($input['connect_timeout'])){
-			$input['connect_timeout'] = 3600;
-		}
+		$res = $this->request('POST', $url);
 
-		try{
-			$res = $this->client->request('POST',$url,[
-				'headers' => ['openapikey' => $input['apiKey']],
-				'connect_timeout' => $input['connect_timeout'],
-				'timeout' => $input['connect_timeout']
-			]);
-			$xml = $res->getBody();
-			$order = new SimpleXMLElement($xml);
-            $response = [
-                'message' => json_decode(json_encode($order), true),
-                'code' => $res->getStatusCode()
-            ];
-        } catch (RequestException $e) {
-            $response = [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode()
-            ];
-		}
-		
-		
-		return $response;
+		return $res;
 	}
 
 	public function updateAWB($input)
@@ -102,31 +61,9 @@ class Order
 			. '&ordPrdSeq=' . $input['ordPrdSeq']
 		;
 
-		if(!isset($input['connect_timeout'])){
-			$input['connect_timeout'] = 3600;
-		}
+		$res = $this->request('GET', $url);
 
-		try{
-			$res = $this->client->request('GET',$url,[
-				'headers' => ['openapikey' => $input['apiKey']],
-				'connect_timeout' => $input['connect_timeout'],
-				'timeout' => $input['connect_timeout']
-			]);
-			$xml = $res->getBody();
-			$order = new SimpleXMLElement($xml);
-			$response = [
-				'message' => json_decode(json_encode($order), true),
-				'code' => $res->getStatusCode()
-			];
-		} catch (RequestException $e) {
-			$response = [
-				'message' => $e->getMessage(),
-				'code' => $e->getCode()
-			];
-		}
-
-
-		return $response;
+		return $res;
 	}
 
 	public function cancel($input)
@@ -140,53 +77,54 @@ class Order
 			. '&ordQty=' . $input['ordQty']
 		;
 
-		if(!isset($input['connect_timeout'])){
-			$input['connect_timeout'] = 3600;
-		}
+		$res = $this->request('POST', $url);
 
-		try{
-			$res = $this->client->request('POST',$url,[
-				'headers' => ['openapikey' => $input['apiKey']],
-				'connect_timeout' => $input['connect_timeout'],
-				'timeout' => $input['connect_timeout']
-			]);
-			$xml = $res->getBody();
-			$order = new SimpleXMLElement($xml);
-			$response = [
-				'message' => json_decode(json_encode($order), true),
-				'code' => $res->getStatusCode()
-			];
-		} catch (RequestException $e) {
-			$response = [
-				'message' => $e->getMessage(),
-				'code' => $e->getCode()
-			];
-		}
-
-
-		return $response;
-	}
-
-	public function saveDB($order)
-	{
-		return $this->parseOrder($order);
-	}
-
-	public function updateDB()
-	{
-		// update sales order data
-	}
-
-	private function parseOrder($order)
-	{
-		return [
-			$order
-		];
+		return $res;
 	}
 
 	private function eleveniaDate($date)
 	{
 		return str_replace('-', '/', $date);
 	}
-	
+
+	private function request($method, $url, $options=[])
+	{
+		try{
+			$options = array_merge_recursive(
+				[
+					'headers' => ['openapikey' => $this->token],
+					'timeout' => $this->timeout
+				], $options
+			);
+
+			$req = $this->client->request($method, $url, $options);
+			$xml = $req->getBody();
+
+			$order = new SimpleXMLElement($xml);
+
+			$res = [
+				'message' => json_decode(json_encode($order), true),
+				'code' => $req->getStatusCode()
+			];
+		} catch (ClientException $e) {
+			$res = [
+				'message' => $e->getResponse()->getReasonPhrase(),
+				'body' => json_decode($e->getResponse()->getBody(), true),
+				'code' => $e->getResponse()->getStatusCode()
+			];
+		} catch (ServerException $e) {
+			$res = [
+				'message' => $e->getResponse()->getReasonPhrase(),
+				'code' => $e->getResponse()->getStatusCode()
+			];
+		} catch (ConnectException $e) {
+			$handleContext = $e->getHandlerContext();
+			$res = [
+				'message' => $handleContext['error'],
+				'code' => $handleContext['http_code']
+			];
+		}
+
+		return $res;
+	}
 }
