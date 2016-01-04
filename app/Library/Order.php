@@ -2,16 +2,10 @@
 
 namespace App\Library;
 
-use GuzzleHttp\Psr7\Response;
 use SimpleXMLElement;
 use GuzzleHttp\Client;
-
-use App\Model\SalesOrder;
-
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
+
 
 class Order
 {
@@ -23,14 +17,8 @@ class Order
 
 		$this->client = new Client();
 		$this->baseUrl = 'http://api.elevenia.co.id/rest';
-
 	}
-	
-	/**
-	 * Get order data from elevenia
-	 * @param array $input
-	 * @return array
-	 */
+
 	public function get($input)
 	{
 		
@@ -69,14 +57,6 @@ class Order
 		return $response;
 	}
 
-	public function xmlToArray(Response $res)
-	{
-
-	}
-
-	/**
-	*Accept order to elevenia
-	*/
 	public function accept($input)
 	{
 		$url = $this->baseUrl . '/orderservices/orders/accept?'
@@ -110,10 +90,7 @@ class Order
 		return $response;
 	}
 
-	/**
-	 *Send AWB to elevenia
-	 */
-	public function setAwb($input)
+	public function updateAWB($input)
 	{
 		$url = $this->baseUrl . '/orderservices/orders/inputAwb?'
 			. 'awb=' . $input['awb']
@@ -152,10 +129,7 @@ class Order
 		return $response;
 	}
 
-	/**
-	 *Send Cancel order to elevenia
-	 */
-	public function setCancel($input)
+	public function cancel($input)
 	{
 		$url = $this->baseUrl . '/orderservices/order/reject?'
 			. 'dlvNo=' . $input['dlvNo']
@@ -191,6 +165,23 @@ class Order
 
 
 		return $response;
+	}
+
+	public function saveDB($order)
+	{
+		return $this->parseOrder($order);
+	}
+
+	public function updateDB()
+	{
+		// update sales order data
+	}
+
+	private function parseOrder($order)
+	{
+		return [
+			$order
+		];
 	}
 
 	private function eleveniaDate($date)
