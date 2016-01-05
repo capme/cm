@@ -21,7 +21,7 @@ class SalesOrderTest extends TestCase
     public function testServerClientNetworkError()
     {
         $order = new Order($this->token);
-        $input = array("ordStat" => "301", "dateFrom" => "2015-12-28", "dateTo" => "2015-12-28");
+        $input = ["ordStat" => "301", "dateFrom" => "2015-12-28", "dateTo" => "2015-12-28"];
 
         $handlerContext = [
             'errno' => 28,
@@ -56,11 +56,11 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("ordStat" => "301", "dateFrom" => "2015-12-28", "dateTo" => "2015-12-28");
+        $input = ["ordStat" => "301", "dateFrom" => "2015-12-01", "dateTo" => "2015-12-28"];
         $res = $order->get($input);
 
         $this->assertEquals(200, $res['code']);
-        $this->assertArrayHasKey('order', $res['message']);
+        $this->assertArrayHasKey('order', $res['body']);
     }
 
     public function testGetEmpty()
@@ -72,11 +72,11 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("ordStat" => "301", "dateFrom" => "2015-12-28", "dateTo" => "2015-12-28");
+        $input = ["ordStat" => "301", "dateFrom" => "2015-12-28", "dateTo" => "2015-12-28"];
         $res = $order->get($input);
 
         $this->assertEquals(200, $res['code']);
-        $this->assertArrayHasKey('order', $res['message']);
+        $this->assertArrayHasKey('order', $res['body']);
     }
 
     public function testAcceptSuccess()
@@ -89,10 +89,10 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("ordNo" => "201512286029293", "ordPrdSeq" => "1");
+        $input = ["ordNo" => "201512286029293", "ordPrdSeq" => "1"];
         $ret = $order->accept($input);
 
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
 
         $this->assertEquals("Order NO", substr($array["message"],0,8));
     }
@@ -107,9 +107,9 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("ordNo" => "201512286029293", "ordPrdSeq" => "1");
+        $input = ["ordNo" => "201512286029293", "ordPrdSeq" => "1"];
         $ret = $order->accept($input);
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
         $this->assertEquals("ERROR", substr($array["message"],0,5));
     }
 
@@ -117,9 +117,9 @@ class SalesOrderTest extends TestCase
     {
         $order = new Order($this->token);
 
-        $input = array("awb" => "JNE12345", "dlvNo" => "8000028244", "dlvMthdCd" => "01",
+        $input = ["awb" => "JNE12345", "dlvNo" => "8000028244", "dlvMthdCd" => "01",
             "dlvEtprsCd" => "00301", "ordNo" => "201512286028790", "dlvEtprsNm" => "TIKI Regular",
-            "ordPrdSeq" => "1");
+            "ordPrdSeq" => "1"];
 
         $xml = "<ClientMessage><resultCode>200</resultCode><message>SUCCES: order# " . $input['ordNo']
             . ", ord_prd_seq: ".$input['ordPrdSeq']." status is now On Shipping</message></ClientMessage>";
@@ -127,7 +127,7 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
         $ret = $order->updateAWB($input);
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
         $this->assertEquals("SUCCES", substr($array["message"],0,6));
     }
 
@@ -140,12 +140,12 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("awb" => "JNE12345", "dlvNo" => "8000027521", "dlvMthdCd" => "01",
+        $input = ["awb" => "JNE12345", "dlvNo" => "8000027521", "dlvMthdCd" => "01",
             "dlvEtprsCd" => "00301", "ordNo" => "201512165928898", "dlvEtprsNm" => "TIKI Regular",
-            "ordPrdSeq" => "1");
+            "ordPrdSeq" => "1"];
         $ret = $order->updateAWB($input);
 
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
         $this->assertEquals("ERROR", substr($array["message"], 0, 5));
     }
 
@@ -153,15 +153,15 @@ class SalesOrderTest extends TestCase
     {
         $order = new Order($this->token);
 
-        $input = array("dlvNo" => "8000028448", "ordNo" => "201512296037598", "ordPrdSeq" => "1",
-            "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1");
+        $input = ["dlvNo" => "8000028448", "ordNo" => "201512296037598", "ordPrdSeq" => "1",
+            "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1"];
         $xml = "<ClientMessage><productNo>xxxxxxx</productNo><message>Order: " . $input['ordNo']
             . " has been cancelled.</message><resultCode>200</resultCode></ClientMessage>";
         $this->mockSalesOrder($order, [
             new Response(200, [], $xml)
         ]);
         $ret = $order->cancel($input);
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
         $this->assertArrayHasKey("productNo", $array);
     }
 
@@ -176,11 +176,11 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = array("dlvNo" => "8000027599", "ordNo" => "201512165930342", "ordPrdSeq" => "1",
-            "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1");
+        $input = ["dlvNo" => "8000027599", "ordNo" => "201512165930342", "ordPrdSeq" => "1",
+            "message" => "test ajah cancel", "ordCnRsnCd" => "99", "ordQty" => "1"];
 
         $ret = $order->cancel($input);
-        $array = json_decode(json_encode((array)$ret['message']), TRUE);
+        $array = json_decode(json_encode((array)$ret['body']), TRUE);
         $this->assertEquals("ERROR", substr($array["message"], 0, 5));
         $this->assertArrayNotHasKey("productNo",$array);
     }

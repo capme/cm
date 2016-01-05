@@ -2,6 +2,7 @@
 
 namespace App\Library;
 
+use App\Model\SalesOrder;
 use SimpleXMLElement;
 
 use GuzzleHttp\Client;
@@ -82,6 +83,63 @@ class Order
 		return $res;
 	}
 
+    public function parseOrder($order)
+    {
+        $partnerId = $this->getPartnerId();
+        $order = [
+            "orderCreatedTime" => gmdate("Y-m-d\TH:i:s\z", strtotime($order['ordStlEndDt'])), // Y (Datetime) - DONE
+            "customerInfo" => [
+                "addressee" => $order["ordNm"], // Y (String) - Done
+                "address1" => "964 Rama 4 Road", // Y (String)
+                "province" => "Bangkok", // N (String)
+                "postalCode" => "10500", // Y (String)
+                "country" => "Thailand", // Y (String)
+                "phone" => "081-000-0000", // Y (String)
+                "email" => "smith@a.com" // N (Email)
+            ],
+            "orderShipmentInfo" => [
+                "addressee" => $order["rcvrNm"], // Y (String) - DONE
+                "address1" => "111 Rama 4 rd.", // Y (String)
+                "address2" => "", // N (String)
+                "subDistrict" => "Silom", // N (String)
+                "district" => "Bangrak", // N (String)
+                "city" => "", // N (String)
+                "province" => "Bangkok", // N (String)
+                "postalCode" => "10500", // Y (String)
+                "country" => "Thailand", // Y (String)
+                "phone" => $order["rcvrTlphn"], // Y (String)
+                "email" => "smith@a.com" // N (Email)
+            ],
+            "paymentType" => "COD", // Y enum(NON_COD, COD, CCOD)
+            "shippingType" => "STANDARD_2_4_DAYS", // Y enum(NEXT_DAY, EXPRESS_1_2_DAYS, STANDARD_2_4_DAYS, NATIONWIDE_3_5_DAYS)
+            "grossTotal" => 12800, // N Decimal(.00)
+            "currUnit" => "IDR", // N Enum(THB, SGD, IDR, PHP)-DONE
+            "orderItems" => [
+                [
+                    "partnerId" => $partnerId, // Y String
+                    "itemId" => "FRSIAN64254110000000M", // Y String
+                    "qty" => 2, // Y Int
+                    "subTotal" => 6000 // Y Decimal(.00)
+                ]
+            ]
+        ];
+
+        return $order;
+    }
+
+
+
+    public function store($salesOrder)
+    {
+        SalesOrder::create($salesOrder);
+    }
+
+    private function getPartnerId()
+    {
+        // Todo - get partner id make it static
+        return "143";
+    }
+
 	private function eleveniaDate($date)
 	{
 		return str_replace('-', '/', $date);
@@ -103,7 +161,7 @@ class Order
 			$order = new SimpleXMLElement($xml);
 
 			$res = [
-				'message' => json_decode(json_encode($order), true),
+				'body' => json_decode(json_encode($order), true),
 				'code' => $req->getStatusCode()
 			];
 		} catch (ClientException $e) {
