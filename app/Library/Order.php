@@ -86,45 +86,45 @@ class Order
     public function parseOrder($order)
     {
         $partnerId = $this->getPartnerId();
-        $order = [
-            "orderCreatedTime" => gmdate("Y-m-d\TH:i:s\z", strtotime($order['ordStlEndDt'])), // Y (Datetime) - DONE
+        $orders = [
+            "orderCreatedTime" => gmdate("Y-m-d\TH:i:s\Z", strtotime($order['ordStlEndDt'])),
             "customerInfo" => [
-                "addressee" => $order["ordNm"], // Y (String) - Done
-                "address1" => "964 Rama 4 Road", // Y (String)
-                "province" => "Bangkok", // N (String)
-                "postalCode" => "10500", // Y (String)
-                "country" => "Thailand", // Y (String)
-                "phone" => "081-000-0000", // Y (String)
-                "email" => "smith@a.com" // N (Email)
+                "addressee" => $order["ordNm"],
+                "address1" => $order["rcvrBaseAddr"],
+                "province" => "",
+                "postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+                "country" => "Indonesia",
+                "phone" => $order['rcvrPrtblNo'],
+                "email" => "order@elevenia.co.id"
             ],
             "orderShipmentInfo" => [
-                "addressee" => $order["rcvrNm"], // Y (String) - DONE
-                "address1" => "111 Rama 4 rd.", // Y (String)
-                "address2" => "", // N (String)
-                "subDistrict" => "Silom", // N (String)
-                "district" => "Bangrak", // N (String)
-                "city" => "", // N (String)
-                "province" => "Bangkok", // N (String)
-                "postalCode" => "10500", // Y (String)
-                "country" => "Thailand", // Y (String)
-                "phone" => $order["rcvrTlphn"], // Y (String)
-                "email" => "smith@a.com" // N (Email)
+                "addressee" => $order["rcvrNm"],
+                "address1" => $order["rcvrBaseAddr"],
+                "address2" => "",
+                "subDistrict" => "",
+                "district" => "",
+                "city" => "",
+                "province" => "",
+                "postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+                "country" => "Indonesia",
+                "phone" => $order["rcvrTlphn"],
+                "email" => "order@elevenia.co.id"
             ],
-            "paymentType" => "COD", // Y enum(NON_COD, COD, CCOD)
-            "shippingType" => "STANDARD_2_4_DAYS", // Y enum(NEXT_DAY, EXPRESS_1_2_DAYS, STANDARD_2_4_DAYS, NATIONWIDE_3_5_DAYS)
-            "grossTotal" => 12800, // N Decimal(.00)
-            "currUnit" => "IDR", // N Enum(THB, SGD, IDR, PHP)-DONE
+            "paymentType" => "NON_COD",
+            "shippingType" => "STANDARD_2_4_DAYS",
+            "grossTotal" => (float)number_format($order['orderAmt'], 2),
+            "currUnit" => "IDR",
             "orderItems" => [
                 [
-                    "partnerId" => $partnerId, // Y String
-                    "itemId" => "FRSIAN64254110000000M", // Y String
-                    "qty" => 2, // Y Int
-                    "subTotal" => 6000 // Y Decimal(.00)
+                    "partnerId" => $partnerId,
+                    "itemId" => $order['sellerPrdCd'],
+                    "qty" => (int)$order['ordQty'],
+                    "subTotal" => (float)$order['selPrc']
                 ]
             ]
         ];
 
-        return $order;
+        return $orders;
     }
 
 
