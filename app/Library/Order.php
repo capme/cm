@@ -85,7 +85,37 @@ class Order
 
     public function parseOrder($order)
     {
-        $partnerId = $this->getPartnerId();
+		$partnerId = $this->getPartnerId();
+		$orderItem = array();
+		if(isset($order[0]))
+		{
+			//1 order more then 1 item
+			$totAmount = 0;
+			foreach($order as $itemOrder)
+			{
+				$orderItem[] = [
+					"partnerId" => $partnerId,
+					"itemId" => $itemOrder['sellerPrdCd'],
+					"qty" => (int)$itemOrder['ordQty'],
+					"subTotal" => (float)$itemOrder['selPrc']
+				];
+				$totAmount = $totAmount + (int)$itemOrder['selPrc'];
+			}
+			$order = $order[0];
+			$order['orderAmt'] = $totAmount;
+		}
+		else
+		{
+			//1 order 1 item
+			$orderItem[] = [
+				"partnerId" => $partnerId,
+				"itemId" => $order['sellerPrdCd'],
+				"qty" => (int)$order['ordQty'],
+				"subTotal" => (float)$order['selPrc']
+			];
+
+		}
+
         $orders = [
             "orderCreatedTime" => gmdate("Y-m-d\TH:i:s\Z", strtotime($order['ordStlEndDt'])),
             "customerInfo" => [
@@ -112,16 +142,10 @@ class Order
             ],
             "paymentType" => "NON_COD",
             "shippingType" => "STANDARD_2_4_DAYS",
-            "grossTotal" => (float)number_format($order['orderAmt'], 2),
+            "grossTotal" => (float)number_format($order['orderAmt'], 2, ".", ""),
             "currUnit" => "IDR",
-            "orderItems" => [
-                [
-                    "partnerId" => $partnerId,
-                    "itemId" => $order['sellerPrdCd'],
-                    "qty" => (int)$order['ordQty'],
-                    "subTotal" => (float)$order['selPrc']
-                ]
-            ]
+            "orderItems" => $orderItem
+
         ];
 
         return $orders;
