@@ -83,13 +83,10 @@ class Order
 		return $res;
 	}
 
-    public function parseOrder($order)
+    public function parseOrder($partnerId, $order)
     {
-		$partnerId = $this->getPartnerId();
-		$orderItem = array();
-		if(isset($order[0]))
-		{
-			//1 order more then 1 item
+		$orderItem = [];
+		if(isset($order[0])) {
 			$totAmount = 0;
 			foreach($order as $itemOrder)
 			{
@@ -103,17 +100,13 @@ class Order
 			}
 			$order = $order[0];
 			$order['orderAmt'] = $totAmount;
-		}
-		else
-		{
-			//1 order 1 item
+		} else {
 			$orderItem[] = [
 				"partnerId" => $partnerId,
 				"itemId" => $order['sellerPrdCd'],
 				"qty" => (int)$order['ordQty'],
 				"subTotal" => (float)$order['selPrc']
 			];
-
 		}
 
         $orders = [
@@ -122,7 +115,7 @@ class Order
                 "addressee" => $order["ordNm"],
                 "address1" => $order["rcvrBaseAddr"],
                 "province" => "",
-                "postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+                "postalCode" => "0",
                 "country" => "Indonesia",
                 "phone" => $order['rcvrPrtblNo'],
                 "email" => "order@elevenia.co.id"
@@ -135,7 +128,7 @@ class Order
                 "district" => "",
                 "city" => "",
                 "province" => "",
-                "postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+                "postalCode" => "0",
                 "country" => "Indonesia",
                 "phone" => $order["rcvrTlphn"],
                 "email" => "order@elevenia.co.id"
@@ -145,26 +138,18 @@ class Order
             "grossTotal" => (float)number_format($order['orderAmt'], 2, ".", ""),
             "currUnit" => "IDR",
             "orderItems" => $orderItem
-
         ];
 
         return $orders;
     }
 
 
-
     public function store($salesOrder)
     {
-        SalesOrder::create($salesOrder);
+        SalesOrder::saved($salesOrder);
     }
 
-    private function getPartnerId()
-    {
-        // Todo - get partner id make it static
-        return "143";
-    }
-
-	private function eleveniaDate($date)
+    private function eleveniaDate($date)
 	{
 		return str_replace('-', '/', $date);
 	}
