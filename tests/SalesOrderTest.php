@@ -1,6 +1,7 @@
 <?php
 
 use App\Library\Order;
+
 use GuzzleHttp\Handler;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Handler\MockHandler;
@@ -12,10 +13,13 @@ use GuzzleHttp\Client;
 class SalesOrderTest extends TestCase
 {
     public $token;
+    public $mockEnabled;
 
     public function setUp()
     {
+        parent::setUp();
         $this->token = 'fe868c8788f602061778b49949cf3643';
+        $this->mockEnabled = true;
     }
 
     public function testServerClientNetworkError()
@@ -34,6 +38,7 @@ class SalesOrderTest extends TestCase
             new Response(404),
             new ConnectException('Network Error', new Request('GET', $this->baseUrl), null, $handlerContext)
         ]);
+
 
         $res = $order->get($input);
         $this->assertEquals(501, $res['code']);
@@ -56,7 +61,7 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = ["ordStat" => "301", "dateFrom" => "2015-12-01", "dateTo" => "2015-12-28"];
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-08", "dateTo" => "2016-01-08"];
         $res = $order->get($input);
 
         $this->assertEquals(200, $res['code']);
@@ -187,6 +192,7 @@ class SalesOrderTest extends TestCase
 
     private function mockSalesOrder(Order $order, array $queue)
     {
+        if (!$this->mockEnabled) return;
         $mock = new MockHandler($queue);
         $handler = HandlerStack::create($mock);
         $order->client = new Client(['handler'=>$handler]);

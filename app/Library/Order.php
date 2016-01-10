@@ -2,7 +2,6 @@
 
 namespace App\Library;
 
-use App\Model\SalesOrder;
 use SimpleXMLElement;
 
 use GuzzleHttp\Client;
@@ -141,12 +140,6 @@ class Order
         ];
 
         return $orders;
-    }
-
-
-    public function store($salesOrder)
-    {
-        SalesOrder::saved($salesOrder);
     }
 
     private function eleveniaDate($date)

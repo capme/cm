@@ -1,6 +1,5 @@
-.idea
-.DS_STORE
 /vendor
 /coverage
-composer.lock
+.DS_Store
+.idea
 .env
