@@ -1,7 +1,6 @@
-.settings
-.project
-.buildpath
-.idea
 /vendor
+/coverage
 composer.lock
+.DS_Store
+.idea
 .env
