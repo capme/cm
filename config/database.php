@@ -92,6 +92,9 @@ return [
             'database' => env('DB_DATABASE', ''),
             'username' => env('DB_USERNAME', ''),
             'password' => env('DB_PASSWORD', ''),
+            'options' => array(
+                'db' => env('DB_AUTH_DATABASE', 'admin')
+            )
         ],
 
     ],
