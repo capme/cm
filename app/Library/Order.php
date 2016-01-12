@@ -82,7 +82,135 @@ class Order
 		return $res;
 	}
 
+	public function parseOrder($partnerId, $order){
+		/*
+		 *
+		 * format return array nya :
+		 *
+		 * array(
+		 * 		"{URL fullfillment by ordNo ke - 1}" => {array regional put sales order},
+		 * 		"{URL fullfillment by ordNo ke - 2}" => {array regional put sales order},
+		 * 		"{URL fullfillment by ordNo ke - (n)}" => {array regional put sales order}
+		 * )
+		 *
+		 *
+		 */
+		//$partnerId = $this->getPartnerId();
+		$arrFullFillment = array();
+		$arrFullFillmentItem = array();
+
+		if(isset($order[0]))
+		{
+			foreach($order as $key => $data)
+			{
+				$arrFullFillment[$data['ordNo']] =
+
+					[
+								"orderCreatedTime" => gmdate("Y-m-d\TH:i:s\Z", strtotime($data['ordStlEndDt'])),
+								"customerInfo" => [
+									"addressee" => $data["ordNm"],
+									"address1" => $data["rcvrBaseAddr"],
+									"province" => "",
+									"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+									"country" => "Indonesia",
+									"phone" => $data['rcvrPrtblNo'],
+									"email" => "order@elevenia.co.id"
+								],
+								"orderShipmentInfo" => [
+									"addressee" => $data["rcvrNm"],
+									"address1" => $data["rcvrBaseAddr"],
+									"address2" => "",
+									"subDistrict" => "",
+									"district" => "",
+									"city" => "",
+									"province" => "",
+									"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+									"country" => "Indonesia",
+									"phone" => $data["rcvrTlphn"],
+									"email" => "order@elevenia.co.id"
+								],
+								"paymentType" => "NON_COD",
+								"shippingType" => "STANDARD_2_4_DAYS",
+								"grossTotal" => (float)number_format($data['orderAmt'], 2, ".", ""),
+								"currUnit" => "IDR",
+								"orderItems" => null
+
+					];
+
+				$arrFullFillmentItem[$data['ordNo']][] = $data['sellerPrdCd']."|".$data['ordQty']."|".$data['selPrc'];
+			}
+			foreach($arrFullFillmentItem as $key => $data)
+			{
+				$orderItem = array();
+				foreach($data as $keySub => $dataSub)
+				{
+					$arrDataSub = explode("|", $dataSub);
+					$orderItem[] = [
+						"partnerId" => $partnerId,
+						"itemId" => $arrDataSub[0],
+						"qty" => (int)$arrDataSub[1],
+						"subTotal" => (float)$arrDataSub[2]
+					];
+				}
+
+				$arrFullFillment[$key]['orderItems'] = $orderItem;
+			}
+		}
+		else
+		{
+			//1 order 1 item
+			//$order = $order['order'];
+			$orderItem[] = [
+				"partnerId" => $partnerId,
+				"itemId" => $order['sellerPrdCd'],
+				"qty" => (int)$order['ordQty'],
+				"subTotal" => (float)$order['selPrc']
+			];
+
+			$arrFullFillment =
+				[
+					$order['ordNo'] =>
+					[
+						"orderCreatedTime" => gmdate("Y-m-d\TH:i:s\Z", strtotime($order['ordStlEndDt'])),
+						"customerInfo" => [
+							"addressee" => $order["ordNm"],
+							"address1" => $order["rcvrBaseAddr"],
+							"province" => "",
+							"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+							"country" => "Indonesia",
+							"phone" => $order['rcvrPrtblNo'],
+							"email" => "order@elevenia.co.id"
+						],
+						"orderShipmentInfo" => [
+							"addressee" => $order["rcvrNm"],
+							"address1" => $order["rcvrBaseAddr"],
+							"address2" => "",
+							"subDistrict" => "",
+							"district" => "",
+							"city" => "",
+							"province" => "",
+							"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+							"country" => "Indonesia",
+							"phone" => $order["rcvrTlphn"],
+							"email" => "order@elevenia.co.id"
+						],
+						"paymentType" => "NON_COD",
+						"shippingType" => "STANDARD_2_4_DAYS",
+						"grossTotal" => (float)number_format($order['orderAmt'], 2, ".", ""),
+						"currUnit" => "IDR",
+						"orderItems" => $orderItem
+
+					]
+				];
+		}
+
+
+		return $arrFullFillment;
+	}
+
+	/*
     public function parseOrder($partnerId, $order)
+
     {
 		$orderItem = [];
 		if(isset($order[0])) {
@@ -141,6 +269,7 @@ class Order
 
         return $orders;
     }
+	*/
 
     private function eleveniaDate($date)
 	{

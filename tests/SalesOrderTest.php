@@ -9,6 +9,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
+use Acommerce\Cmp\SalesOrder;
+use Acommerce\Cmp\SalesOrderStatus;
+use Acommerce\Cmp\Auth;
 
 class SalesOrderTest extends TestCase
 {
@@ -94,7 +97,7 @@ class SalesOrderTest extends TestCase
             new Response(200, [], $xml)
         ]);
 
-        $input = ["ordNo" => "201512286029293", "ordPrdSeq" => "1"];
+        $input = ["ordNo" => "201601116139059", "ordPrdSeq" => "1"];
         $ret = $order->accept($input);
 
         $array = json_decode(json_encode((array)$ret['body']), TRUE);
@@ -189,6 +192,1138 @@ class SalesOrderTest extends TestCase
         $this->assertEquals("ERROR", substr($array["message"], 0, 5));
         $this->assertArrayNotHasKey("productNo",$array);
     }
+
+    public function testOneOrderOneItem()
+    {
+        $order = new Order($this->token);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Orders>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>201601116139059</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+        </Orders>';
+        $this->mockSalesOrder($order, [
+            new Response(200, [], $xml)
+        ]);
+
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-08", "dateTo" => "2016-01-08"];
+        $res = $order->get($input);
+        $parsedRes = $order->parseOrder(143, $res['body']['order']);
+
+        $this->assertEquals(200, $res['code']);
+        $this->assertEquals(1, count($parsedRes));
+        $this->assertEquals(1, count($parsedRes['201601116139059']['orderItems']));
+    }
+
+    public function testOneOrderMoreThenOneItem()
+    {
+        $order = new Order($this->token);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Orders>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>201601116139059</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>201601116139059</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000003</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+        </Orders>';
+        $this->mockSalesOrder($order, [
+            new Response(200, [], $xml)
+        ]);
+
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-08", "dateTo" => "2016-01-08"];
+        $res = $order->get($input);
+        $parsedRes = $order->parseOrder(143, $res['body']['order']);
+
+        $this->assertEquals(200, $res['code']);
+        $this->assertEquals(1, count($parsedRes));
+        $this->assertEquals(2, count($parsedRes['201601116139059']['orderItems']));
+    }
+
+    public function testMoreThenOneOrderOneItem()
+    {
+        $order = new Order($this->token);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Orders>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>11</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>22</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000003</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+        </Orders>';
+        $this->mockSalesOrder($order, [
+            new Response(200, [], $xml)
+        ]);
+
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-08", "dateTo" => "2016-01-08"];
+        $res = $order->get($input);
+        $parsedRes = $order->parseOrder(143, $res['body']['order']);
+
+        $this->assertEquals(200, $res['code']);
+        $this->assertEquals(2, count($parsedRes));
+        $this->assertEquals(1, count($parsedRes['11']['orderItems']));
+        $this->assertEquals(1, count($parsedRes['22']['orderItems']));
+    }
+
+    public function testMoreThenOneOrderMoreThenOneItem(){
+        $order = new Order($this->token);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Orders>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>11</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000001</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>11</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>22</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000001</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+            <order>
+                <addPrdNo>0</addPrdNo>
+                <addPrdYn>N</addPrdYn>
+                <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                <buyMemNo>26000820</buyMemNo>
+                <delvlaceSeq>140116389</delvlaceSeq>
+                <dlvCstStlTypNm>Prepaid Delivery Fee</dlvCstStlTypNm>
+                <dlvEtprsCd>00301</dlvEtprsCd>
+                <dlvEtprsNm>TIKI Regular</dlvEtprsNm>
+                <dlvKdCdName>General shipping</dlvKdCdName>
+                <dlvMthdCd>01</dlvMthdCd>
+                <dlvMthdCdNm>Courier service</dlvMthdCdNm>
+                <dlvNo>8000028633</dlvNo>
+                <invcUpdateDt></invcUpdateDt>
+                <lstDlvCst>9,000</lstDlvCst>
+                <memId>mobi***********************</memId>
+                <ordDlvReqCont></ordDlvReqCont>
+                <ordDt>2016/01/11</ordDt>
+                <ordNm>Elevenia</ordNm>
+                <ordNo>22</ordNo>
+                <ordPrdSeq>1</ordPrdSeq>
+                <ordPrdStat>202</ordPrdStat>
+                <ordQty>1</ordQty>
+                <ordStlEndDt>2016/01/11 09:29:32</ordStlEndDt>
+                <orderAmt>25000</orderAmt>
+                <orderProduct>
+                    <advrt_stmt></advrt_stmt>
+                    <appmtDdDlvDy>General shipping</appmtDdDlvDy>
+                    <atmt_buy_cnfrm_yn></atmt_buy_cnfrm_yn>
+                    <barCode></barCode>
+                    <batchYn>false</batchYn>
+                    <bonusDscAmt>0</bonusDscAmt>
+                    <bonusDscGb></bonusDscGb>
+                    <bonusDscRt>0.0</bonusDscRt>
+                    <chinaSaleYn></chinaSaleYn>
+                    <ctgrCupnExYn>N</ctgrCupnExYn>
+                    <ctgrPntPreRt></ctgrPntPreRt>
+                    <ctgrPntPreRtAmt></ctgrPntPreRtAmt>
+                    <cupnDlv>0</cupnDlv>
+                    <deliveryTimeOut>false</deliveryTimeOut>
+                    <delvplaceSeq>140116389</delvplaceSeq>
+                    <dlvInsOrgCst>0</dlvInsOrgCst>
+                    <dlvNo>8000028633</dlvNo>
+                    <dlvRewardAmt>0</dlvRewardAmt>
+                    <errMsg></errMsg>
+                    <finalDscPrc></finalDscPrc>
+                    <firstDscAmt>0</firstDscAmt>
+                    <fixedDlvPrd>false</fixedDlvPrd>
+                    <giftPrdOptNo>0</giftPrdOptNo>
+                    <imgurl></imgurl>
+                    <isChangePayMethod>N</isChangePayMethod>
+                    <isHistory>Y</isHistory>
+                    <limitDt></limitDt>
+                    <lowPrcCompYn></lowPrcCompYn>
+                    <mileDscAmt>0.0</mileDscAmt>
+                    <mileDscRt>0.0</mileDscRt>
+                    <mileSaveAmt>0.0</mileSaveAmt>
+                    <mileSaveRt>0.0</mileSaveRt>
+                    <ordPrdCpnAmtWithoutJang>0</ordPrdCpnAmtWithoutJang>
+                    <ordPrdRewardAmt></ordPrdRewardAmt>
+                    <ordPrdRewardItmCd></ordPrdRewardItmCd>
+                    <ordPrdRewardItmCdNm></ordPrdRewardItmCdNm>
+                    <ordPrdSeq>1</ordPrdSeq>
+                    <ordPrdStat>202</ordPrdStat>
+                    <ordQty>1</ordQty>
+                    <orgBonusDscRt>0.0</orgBonusDscRt>
+                    <pluDscAmt>0</pluDscAmt>
+                    <pluDscBasis>0</pluDscBasis>
+                    <pluDscRt>0.0</pluDscRt>
+                    <plusDscOcbRwd>0</plusDscOcbRwd>
+                    <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                    <prdNo>250911</prdNo>
+                    <prdOptSpcNo>0</prdOptSpcNo>
+                    <prdTtoDisconAmt>0</prdTtoDisconAmt>
+                    <prdTypCd>01</prdTypCd>
+                    <procReturnDlvCstByBndl>false</procReturnDlvCstByBndl>
+                    <returnDlvCstByBndl>0</returnDlvCstByBndl>
+                    <rfndMtdCd></rfndMtdCd>
+                    <selPrc>25000</selPrc>
+                    <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                    <stPntDscAmt>0.0</stPntDscAmt>
+                    <stPntDscRt>0.0</stPntDscRt>
+                    <stlStat></stlStat>
+                    <tiketSelPrc>0</tiketSelPrc>
+                    <tiketTransFee>0</tiketTransFee>
+                    <visitDlvYn>N</visitDlvYn>
+                </orderProduct>
+                <prdClfCdNm>Ready Stock</prdClfCdNm>
+                <prdNm>Product FRSIANPRODUCT000002 New</prdNm>
+                <prdNo>250911</prdNo>
+                <rcvrBaseAddr>Andir Kota Bandung JAWA BARAT UKNOWN</rcvrBaseAddr>
+                <rcvrMailNo>SMI-009008</rcvrMailNo>
+                <rcvrNm>Elevenia</rcvrNm>
+                <rcvrPrtblNo>0878-81181818</rcvrPrtblNo>
+                <rcvrTlphn>0878-81181818</rcvrTlphn>
+                <selFeeAmt>32750</selFeeAmt>
+                <selFeeRt>1,250(5.00%)</selFeeRt>
+                <selFixedFee>5.00(%)</selFixedFee>
+                <selPrc>25000</selPrc>
+                <sellerDscPrc>0</sellerDscPrc>
+                <sellerPrdCd>FRSIANPRODUCT000002</sellerPrdCd>
+                <sndPlnDd></sndPlnDd>
+                <tmallApplyDscAmt>0</tmallApplyDscAmt>
+            </order>
+        </Orders>';
+        $this->mockSalesOrder($order, [
+            new Response(200, [], $xml)
+        ]);
+
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-08", "dateTo" => "2016-01-08"];
+        $res = $order->get($input);
+        $parsedRes = $order->parseOrder(143, $res['body']['order']);
+
+        $this->assertEquals(200, $res['code']);
+        $this->assertEquals(2, count($parsedRes));
+        $this->assertEquals(2, count($parsedRes['11']['orderItems']));
+        $this->assertEquals(2, count($parsedRes['22']['orderItems']));
+    }
+
+    public function testPutSalesOrderFromEleveniaToRegional()
+    {
+        //get sales order from elevenia
+        $order = new Order($this->token);
+        $input = ["ordStat" => "202", "dateFrom" => "2016-01-12", "dateTo" => "2016-01-12"];
+        $res = $order->get($input);
+        //print_r($res);
+
+        //print_r($order->parseOrderNew($res['body']['order']));
+
+        if(isset($res['body'])) {
+            if (!empty($res['body'])) {
+
+                //auth to regional
+                $usernameAuth = "frisianflag";
+                $apiKeyAuth = "frisianflag123!";
+                $urlAuth = "https://api.acommercedev.com/identity/token";
+                $auth = new Auth();
+                $resAuth = $auth->get($urlAuth, $usernameAuth, $apiKeyAuth);
+                //print_r($resAuth);
+                if(!isset($resAuth['body'])) die("login to regional failed");
+                $tokenId = $resAuth['body']['token']['token_id'];
+
+                //print_r($res['body']);die();
+                $ret = $order->parseOrder("143", $res['body']['order']);
+                $salesOrder = new SalesOrder();
+                foreach ($ret as $keyRes => $itemRes) {
+                    //put sales order to regional
+                    $urlPutSalesOrder = "https://fulfillment.api.acommercedev.com/channel/frisianflag/order/" . $keyRes;
+                    $res = $salesOrder->create($tokenId, $urlPutSalesOrder, $itemRes);
+                    //print_r($res);
+                    if($res['code'] == "201")
+                    {
+                        echo "Order " . $keyRes . " created.\n";
+                    }
+                    elseif($res['code'] == "501")
+                    {
+                        echo "Order " . $keyRes . " already exist.\n";
+                    }
+                    else
+                    {
+                        echo "Order " . $keyRes . " failed created.\n";
+                    }
+                }
+
+                //print_r($res);
+            }else{
+                echo "no order available\n";
+            }
+        }else{
+
+        }
+
+    }
+
+    public function testGetOrderStatus($orderNo="201601126148209"){
+        //auth to regional
+        $usernameAuth = "frisianflag";
+        $apiKeyAuth = "frisianflag123!";
+        $urlAuth = "https://api.acommercedev.com/identity/token";
+        $auth = new Auth();
+        $resAuth = $auth->get($urlAuth, $usernameAuth, $apiKeyAuth);
+        //print_r($resAuth);
+        if(isset($resAuth['body'])){
+            $tokenId = $resAuth['body']['token']['token_id'];
+            $salesOrderStatus = new SalesOrderStatus();
+            $url = "https://fulfillment.api.acommercedev.com/channel/frisianflag/sales-order-status/id?id=".$orderNo;
+            $ret = $salesOrderStatus->get($tokenId, $url);
+            print_r($ret);
+        }else{
+            echo "login to reional failed";
+        }
+    }
+
+    public function testGetOrderInfo($orderNo="201601126148209"){
+        //auth to regional
+        $usernameAuth = "frisianflag";
+        $apiKeyAuth = "frisianflag123!";
+        $urlAuth = "https://api.acommercedev.com/identity/token";
+        $auth = new Auth();
+        $resAuth = $auth->get($urlAuth, $usernameAuth, $apiKeyAuth);
+        //print_r($resAuth);
+        if(isset($resAuth['body'])){
+            $tokenId = $resAuth['body']['token']['token_id'];
+
+            $salesOrder = new SalesOrder();
+            $url = "https://fulfillment.api.acommercedev.com/channel/frisianflag/order/".$orderNo;
+            $ret = $salesOrder->get($tokenId, $url);
+            print_r($ret);
+        }else{
+            echo "login to reional failed";
+        }
+    }
+
+    public function testAcceptOrderElevenia(){
+            $order = new Order($this->token);
+
+            $input = ["ordNo" => "201601126148209", "ordPrdSeq" => "1"];
+            $ret = $order->accept($input);
+            print_r($ret);
+    }
+
+    public function testSetAwb(){
+        $order = new Order($this->token);
+
+        $input = ["awb" => "JNE12345", "dlvNo" => "8000028665", "dlvMthdCd" => "01",
+            "dlvEtprsCd" => "00301", "ordNo" => "201601126148209", "dlvEtprsNm" => "TIKI Regular",
+            "ordPrdSeq" => "1"];
+
+        $ret = $order->updateAWB($input);
+        print_r($ret);
+    }
+
+
 
     private function mockSalesOrder(Order $order, array $queue)
     {
