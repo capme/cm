@@ -15,7 +15,8 @@
         "laravel/framework": "5.2.*",
         "jenssegers/mongodb": "~2.2",
         "guzzlehttp/guzzle": "~6.1",
-        "acommerce/cmp": "dev-master"
+        "acommerce/cmp": "dev-master",
+        "logentries/logentries-monolog-handler": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
