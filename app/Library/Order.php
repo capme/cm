@@ -330,15 +330,15 @@ class Order
 						array(
 							"name" => "elevenia",
 							"sales_order" => $order,
-							"last_sync" => date("Y-m-d")
+							"last_sync" => date("Y-m-d H:i:s")
 						),
 					"acommerce" =>
 						array(
 							"sales_order" => $itemRes,
 							"sales_order_status" => "NEW",
-							"last_sync" => date("Y-m-d")
+							"last_sync" => date("Y-m-d H:i:s")
 						),
-					"created_date" => "",
+					"created_date" => date("Y-m-d H:i:s"),
 					"updated_date" => ""
 				);
 		}
