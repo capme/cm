@@ -1,0 +1,2 @@
+[channel-bridge-development]
+10.1.1.63 ansible_ssh_user=cmdev
