@@ -358,26 +358,26 @@ class Order
 	{
 		// denormalize order
 		$orderRegional = $this->parseOrder($partnerId, $order);
-		$arrSalesOrderRegional = array();
+		$arrSalesOrderRegional = [];
 		foreach ($orderRegional as $keyRes => $itemRes) {
 			$arrSalesOrderRegional[] =
-				array(
+				[
 					"orderId" => $keyRes,
 					"channel" =>
-						array(
+						[
 							"name" => "elevenia",
-							"sales_order" => $order,
+							"order" => $order,
 							"last_sync" => date("Y-m-d H:i:s")
-						),
+						],
 					"acommerce" =>
-						array(
-							"sales_order" => $itemRes,
-							"sales_order_status" => "NEW",
+						[
+							"order" => $itemRes,
 							"last_sync" => date("Y-m-d H:i:s")
-						),
+						],
+					"status" => "NEW",
 					"created_date" => date("Y-m-d H:i:s"),
 					"updated_date" => ""
-				);
+				];
 		}
 
 		return SalesOrder::raw()->insert($arrSalesOrderRegional);
