@@ -14,6 +14,14 @@ use GuzzleHttp\Exception\ConnectException;
 
 class Order
 {
+	const StatusPaid = '202';
+	const StatusAcceptOrder = '301';
+	const StatusShippingInProgress = '401';
+	const StatusCompleted = '501';
+	const StatusCancellationInProgress = '701';
+	const StatusConfirmProgress = '901';
+	const StatusCancelOrder = 'B01';
+
 	public $client;
 
 	private $baseUrl;
@@ -318,8 +326,37 @@ class Order
 
 		return $res;
 	}
+
+	/**
+	 * Normalize orders from Elevenia because they are lazy ass programmers
+	 *
+	 * @param $orders
+	 * @return array order
+	 */
+	public function parseOrdersFromElevenia($orders) {
+		$parsedOrders = [];
+		if (!isset($orders[0])) {
+			$orders = [$orders];
+		}
+		foreach ($orders as $elevOrder) {
+			$ordNo = $elevOrder['ordNo'];
+			$orderProduct = $elevOrder['orderProduct'];
+			$orderProduct['prdClfCdNm'] = $elevOrder['prdClfCdNm'];
+			$orderProduct['prdNm'] = $elevOrder['prdNm'];
+			$orderProduct['prdNo'] = $elevOrder['prdNo'];
+			if (!isset($parsedOrders[$ordNo])) {
+				unset($elevOrder['prdClfCdNm'], $elevOrder['prdNm'], $elevOrder['prdNo'], $elevOrder['orderProduct']);
+				$elevOrder['productList'] = [];
+				$parsedOrders[$ordNo] = $elevOrder;
+			}
+			$parsedOrders[$ordNo]['productList'][] = $orderProduct;
+		}
+		return $parsedOrders;
+	}
+
 	public function save($partnerId, $order)
 	{
+		// denormalize order
 		$orderRegional = $this->parseOrder($partnerId, $order);
 		$arrSalesOrderRegional = array();
 		foreach ($orderRegional as $keyRes => $itemRes) {
