@@ -1,0 +1,39 @@
+nginx:
+  image: kucing/nginx
+  volumes:
+    - ./docker/nginx.conf:/etc/nginx/sites-available/default
+    - .:/var/www/html
+  links:
+    - phpfpm
+  ports:
+    - "8084:80"
+
+phpfpm:
+  image: kucing/php56
+  volumes:
+    - .:/var/www/html
+  expose:
+    - "9000"
+  links:
+    - mongodb
+    - cmredis
+
+phpjobs:
+  image: kucing/php56
+  command: php artisan queue:listen
+  volumes:
+    - .:/var/www/html
+  working_dir: /var/www/html
+  links:
+    - mongodb
+    - cmredis
+
+mongodb:
+  image: mongo
+  volumes:
+    - ./storage/mongodb
+  ports:
+    - "27018:27017"
+
+cmredis:
+  image: redis
