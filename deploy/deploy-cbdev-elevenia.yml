@@ -1,0 +1,48 @@
+---
+- hosts: channel-bridge-development
+  vars:
+    home_path: /home/cmdev
+    app_path: /app/web/channelbridge/elevenia
+    repo_path: git@bitbucket.org:acommerceplatform/cm-micro-bridge-elevenia.git
+
+  tasks:
+
+  - name: Ensure repository exists
+    git:
+      repo={{ repo_path }}
+      dest={{ home_path }}{{ app_path }}
+      update=no
+
+  - name: Update repository
+    git:
+      repo={{ repo_path }}
+      dest={{ home_path }}{{ app_path }}
+      version='develop'
+
+  - name: Repository composer update
+    composer:
+      no_dev=no
+      command=update
+      working_dir={{ home_path }}{{ app_path }}
+
+  - name: Run unittest
+    command: ./vendor/bin/phpunit
+    args:
+      chdir: "{{ home_path }}{{ app_path }}"
+    register: phpunit
+
+  - name:  abort task when unittest fail! if not skip to the next
+    fail:
+    when: "'OK' not in phpunit.stdout"
+
+  - name: Deploy to development
+    git:
+      repo={{ repo_path }}
+      dest={{ app_path }}
+      version='develop'
+
+  - name: Development Composer update
+    composer:
+      no_dev=no
+      command=update
+      working_dir={{ home_path }}{{ app_path }}

@@ -2,6 +2,8 @@
 
 namespace App\Library;
 
+use App\Model\Partner;
+use App\Model\SalesOrder;
 use SimpleXMLElement;
 
 use GuzzleHttp\Client;
@@ -315,5 +317,32 @@ class Order
 		}
 
 		return $res;
+	}
+	public function save($partnerId, $order)
+	{
+		$orderRegional = $this->parseOrder($partnerId, $order);
+		$arrSalesOrderRegional = array();
+		foreach ($orderRegional as $keyRes => $itemRes) {
+			$arrSalesOrderRegional[] =
+				array(
+					"orderId" => $keyRes,
+					"channel" =>
+						array(
+							"name" => "elevenia",
+							"sales_order" => $order,
+							"last_sync" => date("Y-m-d H:i:s")
+						),
+					"acommerce" =>
+						array(
+							"sales_order" => $itemRes,
+							"sales_order_status" => "NEW",
+							"last_sync" => date("Y-m-d H:i:s")
+						),
+					"created_date" => date("Y-m-d H:i:s"),
+					"updated_date" => ""
+				);
+		}
+
+		return SalesOrder::raw()->insert($arrSalesOrderRegional);
 	}
 }
