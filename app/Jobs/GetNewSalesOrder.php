@@ -75,15 +75,13 @@ class GetNewSalesOrder extends Job implements ShouldQueue
             $this->release();
             return;
         } elseif (!isset($result['body']['order'])) {
-            Log::error('No order in the body', [
+            Log::info('No order in the body', [
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner->id,
                 'partnerName' => $this->partner->cmps['username'],
                 'key' => $this->partner->channel['elevenia']['openapikey'],
-                'error' => $result['body']['message'],
                 'body' => $result['body'],
             ]);
-            $this->release();
             return;
         }
 
