@@ -9,9 +9,6 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client;
-use Acommerce\Cmp\SalesOrder;
-use Acommerce\Cmp\SalesOrderStatus;
-use Acommerce\Cmp\Auth;
 
 class SalesOrderTest extends TestCase
 {
