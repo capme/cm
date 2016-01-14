@@ -104,7 +104,7 @@ class Order
 			];
 		}
 
-		// Convert to elevenia date (Asia/Jakarta) to UTC
+		/* Convert from elevenia date (Asia/Jakarta) to UTC */
 		$orderCreatedTime = new \DateTime($orderElev['ordStlEndDt'], new \DateTimeZone('Asia/Jakarta'));
 		$orderCreatedTime->setTimezone(new \DateTimeZone('UTC'));
 
@@ -114,7 +114,7 @@ class Order
 				"addressee" => $orderElev["ordNm"],
 				"address1" => $orderElev["rcvrBaseAddr"],
 				"province" => "",
-				"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+				"postalCode" => "0",
 				"country" => "Indonesia",
 				"phone" => $orderElev['rcvrPrtblNo'],
 				"email" => "order@elevenia.co.id"
@@ -127,7 +127,7 @@ class Order
 				"district" => "",
 				"city" => "",
 				"province" => "",
-				"postalCode" => "0", // Y (String) -> from elevenia doesn't have zip code
+				"postalCode" => "0",
 				"country" => "Indonesia",
 				"phone" => $orderElev["rcvrTlphn"],
 				"email" => "order@elevenia.co.id"
@@ -236,6 +236,15 @@ class Order
 			"updatedDate" => new \MongoDate()
 		];
 
-		return SalesOrder::raw()->insert($order);
+
+		return SalesOrder::raw()->update(
+			[
+				"orderId" => $orderElevenia["ordNo"],
+				"partnerId" => $partnerId,
+				"channel.name" => "elevenia"
+			],
+			['$setOnInsert' => $order],
+			["upsert" => true]
+		);
 	}
 }
