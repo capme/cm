@@ -31,7 +31,7 @@ phpjobs:
 mongodb:
   image: mongo
   volumes:
-    - ./storage/mongodb
+    - ./storage/mongodb:/data/db
   ports:
     - "27018:27017"
 
