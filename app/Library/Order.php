@@ -22,6 +22,9 @@ class Order
 	const StatusConfirmProgress = '901';
 	const StatusCancelOrder = 'B01';
 
+	const DateFormat = '\'Y/m/d\'';
+	const TimeZone = 'Asia/Jakarta';
+
 	public $client;
 
 	private $baseUrl;
