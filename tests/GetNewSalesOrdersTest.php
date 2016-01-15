@@ -4,7 +4,7 @@ class GetNewSalesOrdersTest extends TestCase
 {
     public function testJobs()
     {
-        $this->expectsJobs(App\Jobs\GetNewSalesOrder::class);
+        $this->expectsJobs(App\Jobs\GetPartnerNewSalesOrdersFromChannel::class);
 
         Artisan::call('orders:getnew');
     }

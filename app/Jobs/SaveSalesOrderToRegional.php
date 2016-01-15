@@ -42,7 +42,7 @@ class SaveSalesOrderToRegional extends Job implements ShouldQueue
     {
         //parse elev structure into regional structure
         $order = new Order($this->partner->channel['elevenia']['openapikey']);
-        $ret = $order->parseOrderRegional($this->partner->partnerId."", $this->order);
+        $ret = $order->parseOrderFromEleveniaToCmps($this->partner->partnerId."", $this->order);
 
         //get token id from redis. if not exists, authentication to regional
         if(!isset($this->tokenId)){

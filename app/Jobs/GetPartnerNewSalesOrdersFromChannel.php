@@ -13,7 +13,7 @@ use App\Model\Partner;
 use Log;
 use Redis;
 
-class GetNewSalesOrder extends Job implements ShouldQueue
+class GetPartnerNewSalesOrdersFromChannel extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
@@ -46,7 +46,7 @@ class GetNewSalesOrder extends Job implements ShouldQueue
             'key' => $this->partner->channel['elevenia']['openapikey'],
         ]);
         $dateFrom = Redis::get($this->cacheKey);
-        if (!$dateFrom)
+//        if (!$dateFrom)
             $dateFrom = date('Y/m/d', strtotime('yesterday'));
         $dateTo = date('Y/m/d');
 
@@ -75,15 +75,13 @@ class GetNewSalesOrder extends Job implements ShouldQueue
             $this->release();
             return;
         } elseif (!isset($result['body']['order'])) {
-            Log::error('No order in the body', [
+            Log::info('No order in the body', [
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner->id,
                 'partnerName' => $this->partner->cmps['username'],
                 'key' => $this->partner->channel['elevenia']['openapikey'],
-                'error' => $result['body']['message'],
                 'body' => $result['body'],
             ]);
-            $this->release();
             return;
         }
 
