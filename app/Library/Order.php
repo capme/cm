@@ -98,7 +98,7 @@ class Order
 		foreach($orderElev['productList'] as $val)
 		{
 			$orderItem[] = [
-				"partnerId" => $partnerId,
+				"partnerId" => "$partnerId",
 				"itemId" => $val['sellerPrdCd'],
 				"qty" => (int)$val['ordQty'],
 				"subTotal" => (float)number_format($val['ordQty'] * $val['selPrc'], 2, ".", "")
@@ -225,18 +225,17 @@ class Order
 				[
 					"name" => "elevenia",
 					"order" => $orderElevenia,
-					"last_sync" => new \MongoDate()
+					"lastSync" => new \MongoDate()
 				],
 			"acommerce" =>
 				[
 					"order" => $orderCmps,
-					"last_sync" => new \MongoDate()
+					"lastSync" => new \MongoDate()
 				],
 			"status" => "NEW",
 			"createdDate" => new \MongoDate(),
 			"updatedDate" => new \MongoDate()
 		];
-
 
 		return SalesOrder::raw()->update(
 			[
