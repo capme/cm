@@ -92,9 +92,8 @@ class Order
 		return $res;
 	}
 
-	public function parseOrder($partnerId, $order){
+	public function parseOrderRegional($partnerId, $order){
 		/*
-		 *
 		 * format return array nya :
 		 *
 		 * array(
@@ -102,10 +101,7 @@ class Order
 		 * 		"{URL fullfillment by ordNo ke - 2}" => {array regional put sales order},
 		 * 		"{URL fullfillment by ordNo ke - (n)}" => {array regional put sales order}
 		 * )
-		 *
-		 *
 		 */
-		//$partnerId = $this->getPartnerId();
 		$arrFullFillment = array();
 		$arrFullFillmentItem = array();
 
@@ -169,7 +165,6 @@ class Order
 		else
 		{
 			//1 order 1 item
-			//$order = $order['order'];
 			$orderItem[] = [
 				"partnerId" => $partnerId,
 				"itemId" => $order['sellerPrdCd'],
@@ -217,69 +212,6 @@ class Order
 
 		return $arrFullFillment;
 	}
-
-	/*
-    public function parseOrder($partnerId, $order)
-
-    {
-		$orderItem = [];
-		if(isset($order[0])) {
-			$totAmount = 0;
-			foreach($order as $itemOrder)
-			{
-				$orderItem[] = [
-					"partnerId" => $partnerId,
-					"itemId" => $itemOrder['sellerPrdCd'],
-					"qty" => (int)$itemOrder['ordQty'],
-					"subTotal" => (float)$itemOrder['selPrc']
-				];
-				$totAmount = $totAmount + (int)$itemOrder['selPrc'];
-			}
-			$order = $order[0];
-			$order['orderAmt'] = $totAmount;
-		} else {
-			$orderItem[] = [
-				"partnerId" => $partnerId,
-				"itemId" => $order['sellerPrdCd'],
-				"qty" => (int)$order['ordQty'],
-				"subTotal" => (float)$order['selPrc']
-			];
-		}
-
-        $orders = [
-            "orderCreatedTime" => gmdate("Y-m-d\TH:i:s\Z", strtotime($order['ordStlEndDt'])),
-            "customerInfo" => [
-                "addressee" => $order["ordNm"],
-                "address1" => $order["rcvrBaseAddr"],
-                "province" => "",
-                "postalCode" => "0",
-                "country" => "Indonesia",
-                "phone" => $order['rcvrPrtblNo'],
-                "email" => "order@elevenia.co.id"
-            ],
-            "orderShipmentInfo" => [
-                "addressee" => $order["rcvrNm"],
-                "address1" => $order["rcvrBaseAddr"],
-                "address2" => "",
-                "subDistrict" => "",
-                "district" => "",
-                "city" => "",
-                "province" => "",
-                "postalCode" => "0",
-                "country" => "Indonesia",
-                "phone" => $order["rcvrTlphn"],
-                "email" => "order@elevenia.co.id"
-            ],
-            "paymentType" => "NON_COD",
-            "shippingType" => "STANDARD_2_4_DAYS",
-            "grossTotal" => (float)number_format($order['orderAmt'], 2, ".", ""),
-            "currUnit" => "IDR",
-            "orderItems" => $orderItem
-        ];
-
-        return $orders;
-    }
-	*/
 
     private function eleveniaDate($date)
 	{
@@ -357,7 +289,7 @@ class Order
 	public function save($partnerId, $order)
 	{
 		// denormalize order
-		$orderRegional = $this->parseOrder($partnerId, $order);
+		$orderRegional = $this->parseOrderRegional($partnerId, $order);
 		$arrSalesOrderRegional = [];
 		foreach ($orderRegional as $keyRes => $itemRes) {
 			$arrSalesOrderRegional[] =

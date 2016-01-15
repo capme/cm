@@ -98,8 +98,8 @@ class GetNewSalesOrder extends Job implements ShouldQueue
                 'order' => $elevOrder,
             ]);
             $savedDbOrder = $order->save($this->partner->partnerId, $elevOrder);
-            // @TODO for Purbo: dispatch job to save to regional
-            // $this->dispatch(new SaveSalesOrderToRegional($savedDbOrder));
+            //dispatch job to save to regional
+            $this->dispatch(new SaveSalesOrderToRegional($this->partner, $elevOrder));
         }
     }
 }
