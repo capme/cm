@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GetNewSalesOrder;
+use App\Jobs\GetPartnerNewSalesOrdersFromChannel;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use DB;
@@ -48,7 +48,7 @@ class GetNewSalesOrders extends Command
         // Iterate over partners to create job
         foreach ($partners as $partner) {
             $this->info('Dispatching partner: '.$partner->id);
-            $this->dispatch(new GetNewSalesOrder($partner));
+            $this->dispatch(new GetPartnerNewSalesOrdersFromChannel($partner));
         }
     }
 }

@@ -13,7 +13,7 @@ use App\Model\Partner;
 use Log;
 use Redis;
 
-class GetNewSalesOrder extends Job implements ShouldQueue
+class GetPartnerNewSalesOrdersFromChannel extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
@@ -46,7 +46,7 @@ class GetNewSalesOrder extends Job implements ShouldQueue
             'key' => $this->partner->channel['elevenia']['openapikey'],
         ]);
         $dateFrom = Redis::get($this->cacheKey);
-        if (!$dateFrom)
+//        if (!$dateFrom)
             $dateFrom = date('Y/m/d', strtotime('yesterday'));
         $dateTo = date('Y/m/d');
 

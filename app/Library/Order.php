@@ -2,6 +2,7 @@
 
 namespace App\Library;
 
+use App\Model\Partner;
 use App\Model\SalesOrder;
 use SimpleXMLElement;
 
