@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Jobs\GetPartnerNewSalesOrdersFromChannel;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use DB;
 use App\Model\Partner;
 
 class GetNewSalesOrders extends Command
