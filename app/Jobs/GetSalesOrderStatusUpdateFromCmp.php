@@ -51,7 +51,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
 
 
         // Get CMPS Token from cache if not exists create new one and save to cache
-        $token = Cache::remember(config('cache.prefix_cmps_token'), $tokenExpiresAt, function() {
+        $token = Cache::remember(config('cache.prefix_cmps_token') . $this->partnerId, $tokenExpiresAt, function() {
             $partner = Partner::raw()->findOne(["partnerId"=>$this->partnerId], [
                 "cmps.username" => true,
                 "cmps.apiKey" => true
