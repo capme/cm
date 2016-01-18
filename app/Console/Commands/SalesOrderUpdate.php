@@ -41,23 +41,18 @@ class SalesOrderUpdate extends Command
      */
     public function handle()
     {
-        $salesOrder = SalesOrder::raw()->find(["status" => "NEW"],
-            [
-                "orderId" => true,
-                "partnerId" => true
-            ]);
+        $salesOrder = SalesOrder::raw()->find(["status" => "NEW"]);
 
         if ($salesOrder) {
             $this->info(sprintf("Found %s \"NEW\" sales order", $salesOrder->count()));
         }
 
         foreach ($salesOrder as $val) {
-
             $partnerId = $val['partnerId'];
             $orderId = $val['orderId'];
             $this->info(sprintf("Dispatching partner %s with orderId %s channel Elevenia", $partnerId, $orderId));
 
-            $this->dispatch(new GetSalesOrderStatusUpdateFromCmp($partnerId, $orderId));
+            $this->dispatch(new GetSalesOrderStatusUpdateFromCmp($partnerId, $orderId, $val));
         }
     }
 }
