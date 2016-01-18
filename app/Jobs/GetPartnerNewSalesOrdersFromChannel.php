@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use Carbon\Carbon;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,9 +47,11 @@ class GetPartnerNewSalesOrdersFromChannel extends Job implements ShouldQueue
             'key' => $this->partner->channel['elevenia']['openapikey'],
         ]);
         $dateFrom = Redis::get($this->cacheKey);
-//        if (!$dateFrom)
-            $dateFrom = date('Y/m/d', strtotime('yesterday'));
-        $dateTo = date('Y/m/d');
+        if (!$dateFrom)
+            $dateFrom = Carbon::yesterday(Order::TimeZone)->format(Order::DateFormat);
+
+        $now = Carbon::now(Order::TimeZone);
+        $dateTo = $now->format(Order::DateFormat);
 
         // Order service
         $order = new Order($this->partner->channel['elevenia']['openapikey']);
