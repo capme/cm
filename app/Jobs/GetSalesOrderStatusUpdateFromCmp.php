@@ -57,7 +57,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
                 "cmps.apiKey" => true
             ]);
             $token = new CmpsAuth();
-            $res = $token->get("https://api." . getenv("CMPS_BASE_API_URL") . "/identity/token",
+            $res = $token->get("https://" . getenv("CMPS_BASE_API_URL") . "/identity/token",
                 $partner['cmps']['username'], $partner['cmps']['apiKey']);
 
             return $res['body']['token']['token_id'];
