@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Predis\Command\Command;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,7 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         // Commands\Inspire::class,
-        Commands\GetNewSalesOrders::class,
+        Commands\SalesOrderCreate::class,
         Commands\SalesOrderUpdate::class
     ];
 

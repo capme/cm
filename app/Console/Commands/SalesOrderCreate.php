@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Model\Partner;
 
-class GetNewSalesOrders extends Command
+class SalesOrderCreate extends Command
 {
     use DispatchesJobs;
     /**
@@ -15,7 +15,7 @@ class GetNewSalesOrders extends Command
      *
      * @var string
      */
-    protected $signature = 'orders:getnew';
+    protected $signature = 'salesorder:create';
 
     /**
      * The console command description.
