@@ -10,7 +10,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ConnectException;
-
+use Log;
 
 class Order
 {
@@ -22,7 +22,7 @@ class Order
 	const StatusConfirmProgress = '901';
 	const StatusCancelOrder = 'B01';
 
-	const DateFormat = '\'Y/m/d\'';
+	const DateFormat = 'Y/m/d';
 	const TimeZone = 'Asia/Jakarta';
 
 	public $client;
@@ -46,6 +46,7 @@ class Order
 			. $this->eleveniaDate($input['dateFrom'])
 			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
 
+		Log::debug(sprintf('Requesting to [%s]', $url));
 		$res = $this->request('GET', $url);
 		
 		return $res;
