@@ -50,7 +50,7 @@ class SaveSalesOrderToRegional extends Job implements ShouldQueue
         //get token id from redis. if not exists, authentication to regional
         if(!isset($this->tokenId)){
             $auth = new Auth();
-            $urlAuth = $urlAuth = "https://api.acommercedev.com/identity/token";
+            $urlAuth = $urlAuth = "https://".getenv("CMPS_BASE_API_URL")."/identity/token";
             $resAuth = $auth->get($urlAuth, $this->partner->cmps['username'], $this->partner->cmps['apiKey']);
             if(!isset($resAuth['body'])){
                 //authentication failed
@@ -62,12 +62,12 @@ class SaveSalesOrderToRegional extends Job implements ShouldQueue
         }
 
         $salesOrder = new SalesOrder();
-            $urlPutSalesOrder = "https://fulfillment.api.acommercedev.com/channel/".$this->partner->cmps['username']."/order/" . $this->order['ordNo'];
+            $urlPutSalesOrder = "https://fulfillment.".getenv("CMPS_BASE_API_URL")."/channel/".$this->partner->cmps['username']."/order/" . $this->order['ordNo'];
             $ret['orderCreatedTime'] = gmdate("Y-m-d\TH:i:s\Z", $ret['orderCreatedTime']->sec);
             $res = $salesOrder->create($this->tokenId, $urlPutSalesOrder, $ret);
             if($res['code'] == "401"){
                 $auth = new Auth();
-                $urlAuth = $urlAuth = "https://api.acommercedev.com/identity/token";
+                $urlAuth = $urlAuth = "https://".getenv("CMPS_BASE_API_URL")."/identity/token";
                 $resAuth = $auth->get($urlAuth, $this->partner->cmps['username'], $this->partner->cmps['apiKey']);
                 if(!isset($resAuth['body'])){
                     //authentication failed
