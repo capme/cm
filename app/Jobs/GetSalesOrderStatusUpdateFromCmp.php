@@ -21,6 +21,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
     protected $partnerId;
     protected $orderId;
     protected $order;
+    protected $salesOrder;
 
     /**
      * Create a new job instance.
@@ -28,10 +29,11 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
      * @param string $orderId
      * @return void
      */
-    public function __construct($partnerId, $orderId)
+    public function __construct($partnerId, $orderId, $salesOrder)
     {
         $this->partnerId = $partnerId;
         $this->orderId = $orderId;
+        $this->salesOrder = $salesOrder;
     }
 
     /**
@@ -41,7 +43,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $tokenExpiresAt = Carbon::now()->addMinutes(60); // Expires CMPS token
+        $tokenExpiresAt = Carbon::now()->addMinutes(55); // Expires CMPS token
         Log::info('Processing job GetSalesOrderStatusUpdate', [
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
@@ -55,7 +57,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
                 "cmps.apiKey" => true
             ]);
             $token = new CmpsAuth();
-            $res = $token->get("https://api.acommercedev.com/identity/token",
+            $res = $token->get("https://api." . getenv("CMPS_BASE_API_URL") . "/identity/token",
                 $partner['cmps']['username'], $partner['cmps']['apiKey']);
 
             return $res['body']['token']['token_id'];
@@ -64,7 +66,7 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
         $salesOrderStatus = new SalesOrderStatus();
 
         // Get SalesOrderStatus from CMPS
-        $url = "https://fulfillment.api.acommercedev.com/partner/"
+        $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL") . "/partner/"
             . $this->partnerId . "/sales-order-status/id?id=" . $this->orderId;
         Log::info('Get SalesOrderStatus',[
             "job" => "GetSalesOrderStatusUpdate",
@@ -100,8 +102,20 @@ class GetSalesOrderStatusUpdateFromCmp extends Job implements ShouldQueue
                         ]
                     ]
                 );
-                Log::info("Success Update SalesOrderStatus");
-                // TODO - Call Dispatch Update Elevenia Status
+
+                Log::info("Success Update SalesOrderStatus", [
+                    "channel" => "elevenia",
+                    "partnerId" => $this->partnerId,
+                    "orderId" => $this->orderId
+                ]);
+
+                // TODO - Call Dispatch Update Elevenia Status $this->salesOrder
+            } else {
+                Log::info("Skip Update SalesOrderStatus", [
+                    "channel" => "elevenia",
+                    "partnerId" => $this->partnerId,
+                    "orderId" => $this->orderId
+                ]);
             }
         } else {
             Log::error("Failed to get SalesOrderStatus form CMPS", [

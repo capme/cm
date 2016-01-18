@@ -31,10 +31,10 @@ class Order
 	private $timeout;
 	private $token;
 
-	public function __construct($token, $baseUrl='http://api.elevenia.co.id/rest', $timeout=10)
+	public function __construct($token, $timeout=10)
 	{
 		$this->client = new Client();
-		$this->baseUrl = $baseUrl;
+		$this->baseUrl = getenv("ELEVENIA_BASE_API_URL");
 		$this->timeout = $timeout;
 		$this->token = $token;
 	}
