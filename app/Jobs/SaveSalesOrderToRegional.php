@@ -32,7 +32,7 @@ class SaveSalesOrderToRegional extends Job implements ShouldQueue
     {
         $this->order = $order;
         $this->partner = $partner;
-        $this->cacheKey = config('cache.prefix_cmps_token');
+        $this->cacheKey = config('cache.prefix_cmps_token').$partner->partnerId;
         $this->tokenId = Redis::get($this->cacheKey);
     }
 
