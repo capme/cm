@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GetSalesOrderStatusUpdateFromCmp;
+use App\Jobs\GetSalesOrderStatusFromCmps;
 use App\Model\SalesOrder;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -43,16 +43,18 @@ class SalesOrderUpdate extends Command
     {
         $salesOrder = SalesOrder::raw()->find(["status" => "NEW"]);
 
+
         if ($salesOrder) {
             $this->info(sprintf("Found %s \"NEW\" sales order", $salesOrder->count()));
         }
 
         foreach ($salesOrder as $val) {
+
             $partnerId = $val['partnerId'];
             $orderId = $val['orderId'];
             $this->info(sprintf("Dispatching partner %s with orderId %s channel Elevenia", $partnerId, $orderId));
 
-            $this->dispatch(new GetSalesOrderStatusUpdateFromCmp($partnerId, $orderId, $val));
+            $this->dispatch(new GetSalesOrderStatusFromCmps($partnerId, $orderId, $val));
         }
     }
 }

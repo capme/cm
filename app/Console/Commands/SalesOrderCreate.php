@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GetPartnerNewSalesOrdersFromChannel;
+use App\Jobs\GetSalesOrdersFromChannel;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Model\Partner;
@@ -42,12 +42,12 @@ class SalesOrderCreate extends Command
     public function handle()
     {
         // Get partners
-        $partners = Partner::all();
+        $partners = Partner::raw()->find();
         $this->info(sprintf('Found %d partners', count($partners)));
         // Iterate over partners to create job
         foreach ($partners as $partner) {
-            $this->info('Dispatching partner: '.$partner->id);
-            $this->dispatch(new GetPartnerNewSalesOrdersFromChannel($partner));
+            $this->info('Dispatching partner: '.$partner['partnerId']);
+            $this->dispatch(new GetSalesOrdersFromChannel($partner));
         }
     }
 }

@@ -2,17 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Jobs\Job;
+use Log;
 use App\Library\Order;
 use App\Model\Partner;
-use App\Model\SalesOrder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Log;
 
-class SalesOrderUpdateChannel extends Job implements ShouldQueue
+class UpdateSalesOrderToChannel extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
@@ -29,7 +27,7 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(SalesOrder $salesOrder, $updateStep = null, $productIndex = null)
+    public function __construct(array $salesOrder, $updateStep = null, $productIndex = null)
     {
         $this->salesOrder = $salesOrder;
         $this->updateStep = $updateStep;
@@ -43,19 +41,30 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $partner = Partner::where('partnerId', $this->salesOrder->partnerId)->firstOrFail();
-        $this->orderService = new Order($partner->channel['elevenia']['openapikey']);
+        $partner = Partner::raw()->findOne([
+            'partnerId' => $this->salesOrder['partnerId']
+        ]);
+
+        $this->orderService = new Order($partner['channel']['elevenia']['openapikey']);
 
         if ($this->updateStep === null) {
             $this->updateStep = 'accept';
             $this->productIndex = 0;
         }
 
-        $products = $this->salesOrder->channel['order']['productList'];
+        Log::info("UpdateSalesOrderToChannel", [
+            "step" => $this->updateStep,
+            "productIndex" => $this->productIndex,
+            "orderId" => $this->salesOrder['orderId'],
+            "trackingId" => $this->salesOrder['trackingId']
+        ]);
+
+        $products = $this->salesOrder['channel']['order']['productList'];
         switch ($this->updateStep) {
             case 'accept':
                 $this->updateAccept($products[$this->productIndex]);
                 $this->productIndex++;
+
                 if (!isset($products[$this->productIndex])) {
                     $this->updateStep = 'awb';
                     $this->productIndex = 0;
@@ -70,12 +79,12 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
                 break;
         }
 
-        $this->dispatch(new SalesOrderUpdateChannel($this->salesOrder), $this->updateStep, $this->productIndex);
+        $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder, $this->updateStep, $this->productIndex));
     }
 
     protected function updateAccept($product)
     {
-        $elevOrder = $this->salesOrder->channel['order'];
+        $elevOrder = $this->salesOrder['channel']['order'];
         $res = $this->orderService->accept([
             'ordNo' => $elevOrder['ordNo'],
             'ordPrdSeq' => $product['ordPrdSeq'],
@@ -92,9 +101,9 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
 
     protected function updateAwb($product)
     {
-        $elevOrder = $this->salesOrder->channel['order'];
+        $elevOrder = $this->salesOrder['channel']['order'];
         $res = $this->orderService->updateAWB([
-            'awb' => $this->salesOrder->trackingId,
+            'awb' => $this->salesOrder['trackingId'],
             'dlvNo' => $elevOrder['dlvNo'],
             'dlvMthdCd' => $elevOrder['dlvMthdCd'],
             'dlvEtprsCd' => $elevOrder['dlvEtprsCd'],
@@ -108,7 +117,7 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
                 'job' => __CLASS__,
                 'body' => $res,
             ]);
-            throw new \ErrorException('Update AWB error');
+            //throw new \ErrorException('Update AWB error');
         }
     }
 }
