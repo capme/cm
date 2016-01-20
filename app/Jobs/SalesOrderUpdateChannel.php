@@ -47,8 +47,8 @@ class SalesOrderUpdateChannel extends Job implements ShouldQueue
         $this->orderService = new Order($partner->channel['elevenia']['openapikey']);
 
         if ($this->updateStep === null) {
-            $this->dispatch(new SalesOrderUpdateChannel($this->salesOrder), 'accept', 0);
-            return;
+            $this->updateStep = 'accept';
+            $this->productIndex = 0;
         }
 
         $products = $this->salesOrder->channel['order']['productList'];
