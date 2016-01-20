@@ -77,7 +77,7 @@ class GetSalesOrdersFromChannel extends Job implements ShouldQueue
                 'order' => $orderElev,
             ]);
             //dispatch job to save to regional
-            $this->dispatch(new CreateSalesOrderToRegional($this->partner, $orderElev));
+            $this->dispatch(new CreateSalesOrderToCmps($this->partner, $orderElev));
         }
     }
 }
