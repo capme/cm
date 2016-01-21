@@ -95,6 +95,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
                 "partnerId" => $this->partnerId,
                 "orderId" => $this->orderId
             ]);
+            return;
         }
 
         SalesOrder::raw()->update(
