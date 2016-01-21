@@ -45,7 +45,7 @@ class SalesOrderUpdate extends Command
 
 
         if ($salesOrder) {
-            $this->info(sprintf("Found %s \"NEW\" sales order", $salesOrder->count()));
+            $this->info(sprintf("Found %s \"NEW\" sales order", count($salesOrder)));
         }
 
         foreach ($salesOrder as $val) {
