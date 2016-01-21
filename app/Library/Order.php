@@ -197,9 +197,7 @@ class Order
 	 */
 	public function parseOrdersFromElevenia($orders) {
 		$parsedOrders = [];
-		if (!isset($orders[0])) {
-			$orders = [$orders];
-		}
+
 		foreach ($orders as $elevOrder) {
 			$ordNo = $elevOrder['ordNo'];
 			$orderProduct = $elevOrder['orderProduct'];
