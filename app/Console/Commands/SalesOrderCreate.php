@@ -47,7 +47,7 @@ class SalesOrderCreate extends Command
         // Iterate over partners to create job
         foreach ($partners as $partner) {
             $this->info('Dispatching partner: '.$partner['partnerId']);
-            $this->dispatch(new GetSalesOrdersFromChannel($partner));
+            $this->dispatch(new GetSalesOrderFromChannel($partner));
         }
     }
 }
