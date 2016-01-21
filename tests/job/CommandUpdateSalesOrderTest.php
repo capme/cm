@@ -1,5 +1,6 @@
 <?php
 
+
 class UpdateSalesOrderCommandTest extends TestCase
 {
     private function salesOrderData()
@@ -179,6 +180,7 @@ class UpdateSalesOrderCommandTest extends TestCase
 
     public function testCommandHandle()
     {
+        $this->withoutMiddleware();
         /*
          * Define Mock for database, redis, package
          */
@@ -220,12 +222,9 @@ class UpdateSalesOrderCommandTest extends TestCase
 
         // MOCK Elevenia order
         $elevOrder = Mockery::mock('overload:App\Library\Order');
-        $elevOrder->shouldReceive('accept')
+        $elevOrder->shouldReceive('accept', 'updateAWB')
             ->andReturn(
-                ['code' => 200]
-            );
-        $elevOrder->shouldReceive('updateAWB')
-            ->andReturn(
+                ['code' => 200],
                 ['code' => 200]
             );
 

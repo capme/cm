@@ -2,7 +2,6 @@
 
 namespace App\Library;
 
-use App\Model\Partner;
 use App\Model\SalesOrder;
 use SimpleXMLElement;
 
@@ -10,7 +9,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ConnectException;
-use Log;
 
 class Order
 {
@@ -46,7 +44,6 @@ class Order
 			. $this->eleveniaDate($input['dateFrom'])
 			. '&dateTo=' . $this->eleveniaDate($input['dateTo']);
 
-		Log::debug(sprintf('Requesting to [%s]', $url));
 		$res = $this->request('GET', $url);
 		
 		return $res;
