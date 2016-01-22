@@ -28,6 +28,11 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
         $this->cacheKey = config('cache.prefix_cmps_token') . $partner['partnerId'];
     }
 
+    public function getChannelBridgeSalesOrder()
+    {
+        return new SalesOrder();
+    }
+
     /**
      * Execute the job.
      *
@@ -61,7 +66,7 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
             return $res['body']['token']['token_id'];
         });
 
-        $salesOrder = new SalesOrder();
+        $salesOrder = $this->getChannelBridgeSalesOrder();
 
         $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL")
             . "/channel/" . $this->partner['cmps']['username'] . "/order/" . $this->order['ordNo'];

@@ -54,7 +54,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
         ]);
 
         // Retry if unsucessful http request
-        if ($res['code'] !== 200 || isset($result['body']['message'])) {
+        if ($res['code'] !== 200 || isset($res['body']['message'])) {
             Log::error('OpenAPI key', [
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
@@ -73,7 +73,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
         }
 
         // Let's sort this shit first
-        $orders = $order->parseOrdersFromElevenia($result['body']['order']);
+        $orders = $order->parseOrdersFromElevenia($res['body']['order']);
         foreach ($orders as $orderElev) {
 
             $order->save($this->partner['partnerId'], $orderElev);
