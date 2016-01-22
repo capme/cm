@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Carbon\Carbon;
+
 use Cache;
 use Log;
 use App\Model\Partner;
@@ -35,11 +35,11 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
+     * @return string
      */
     public function handle()
     {
-        $tokenExpiresAt = Carbon::now()->addMinutes(55); // Expires CMPS token
+        $tokenExpiresAt = 50; // Expires CMPS token
         Log::info('Processing job get sales order from CMPS', [
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
@@ -52,6 +52,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
                 "cmps.apiKey" => true
             ]);
 
+            Log::info("No key found - get auth from regional");
             $token = new CmpsAuth();
             $res = $token->get("https://" . getenv("CMPS_BASE_API_URL") . "/identity/token",
                 $partner['cmps']['username'], $partner['cmps']['apiKey']);
@@ -63,6 +64,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
 
                 $this->release();
             }
+
             return $res['body']['token']['token_id'];
         });
 
@@ -80,7 +82,9 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
                 "message" => $res["message"],
                 "code" => $res['code']
             ]);
+
             $this->release();
+
         }
 
         $data = $res['body'][0];
@@ -114,6 +118,9 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
             "partnerId" => $this->partnerId,
             "orderId" => $this->orderId
         ]);
+
+        // set tracking id to sales order for update to elevenia channel
+        $this->salesOrder["trackingId"] = $data['shipPackage']['trackingId'];
 
         $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder));
 

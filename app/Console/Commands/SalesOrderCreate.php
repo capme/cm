@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GetSalesOrdersFromChannel;
+use App\Jobs\GetSalesOrderFromChannel;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Model\Partner;

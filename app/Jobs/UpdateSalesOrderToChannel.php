@@ -45,6 +45,7 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
             'partnerId' => $this->salesOrder['partnerId']
         ]);
 
+
         $this->orderService = new Order($partner['channel']['elevenia']['openapikey']);
 
         if ($this->updateStep === null) {
@@ -90,7 +91,7 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
             'ordPrdSeq' => $product['ordPrdSeq'],
         ]);
         if ($res['code'] !== 200) {
-            Log::error('Update AWB error', [
+            Log::error('Update accept', [
                 'type' => 'job',
                 'job' => __CLASS__,
                 'body' => $res,
@@ -111,13 +112,14 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
             'dlvEtprsNm' => $elevOrder['dlvEtprsNm'],
             'ordPrdSeq' => $product['ordPrdSeq'],
         ]);
+
         if ($res['code'] !== 200) {
-            Log::error('Update AWB error', [
+            Log::error('Update AWB', [
                 'type' => 'job',
                 'job' => __CLASS__,
                 'body' => $res,
             ]);
-            //throw new \ErrorException('Update AWB error');
+            throw new \ErrorException('Update AWB error');
         }
     }
 }

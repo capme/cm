@@ -7,15 +7,20 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false">
+         stopOnFailure="true">
     <testsuites>
-        <testsuite name="Integration Test">
+        <testsuite name="integration">
             <directory>./tests/integration</directory>
         </testsuite>
     </testsuites>
     <testsuites>
-        <testsuite name="Unit Test">
+        <testsuite name="unit">
             <directory>./tests/unit</directory>
+        </testsuite>
+    </testsuites>
+    <testsuites>
+        <testsuite name="job">
+            <directory>./tests/integration</directory>
         </testsuite>
     </testsuites>
     <filter>

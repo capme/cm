@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Library\Order;
 
-class GetSalesOrdersFromChannel extends Job implements ShouldQueue
+class GetSalesOrderFromChannel extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
