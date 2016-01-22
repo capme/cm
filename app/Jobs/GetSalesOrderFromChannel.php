@@ -22,6 +22,11 @@ class GetSalesOrdersFromChannel extends Job implements ShouldQueue
         $this->partner = $partner;
     }
 
+    public function getOrder()
+    {
+        return new Order($this->partner['channel']['elevenia']['openapikey']);
+    }
+
     /**
      * Execute the job.
      *
@@ -40,7 +45,7 @@ class GetSalesOrdersFromChannel extends Job implements ShouldQueue
         $dateTo = $now->format(Order::DateFormat);
 
 
-        $order = new Order($this->partner['channel']['elevenia']['openapikey']);
+        $order = $this->getOrder();
 
         $res = $order->get([
             'ordStat' => Order::StatusPaid,
