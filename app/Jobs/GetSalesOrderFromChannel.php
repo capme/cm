@@ -36,7 +36,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
     {
         Log::info('Running job get new sales order from channel', [
             'channel' => 'elevenia',
-            'partner_id' => $this->partner['partnerId']
+            'partnerId' => $this->partner['partnerId']
         ]);
 
         $dateFrom = Carbon::yesterday(Order::TimeZone)->format(Order::DateFormat);
@@ -62,6 +62,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
                 'body' => $res['body']
             ]);
             $this->release();
+            return;
         }
 
         if (!isset($res['body']['order'])) {
@@ -79,7 +80,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
             $order->save($this->partner['partnerId'], $orderElev);
             Log::info('success saving new order to mongodb', [
                 'partnerId' => $this->partner['partnerId'],
-                'order' => $orderElev,
+                'orderId' => $orderElev['ordNo'],
             ]);
             //dispatch job to save to regional
             $this->dispatch(new CreateSalesOrderToCmps($this->partner, $orderElev));

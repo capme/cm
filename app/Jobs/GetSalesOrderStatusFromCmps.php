@@ -63,6 +63,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
                 ]);
 
                 $this->release();
+                return;
             }
 
             return $res['body']['token']['token_id'];
@@ -84,6 +85,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
             ]);
 
             $this->release();
+            return;
 
         }
 

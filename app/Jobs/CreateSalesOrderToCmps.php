@@ -61,6 +61,7 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
                 ]);
 
                 $this->release();
+                return;
             }
 
             return $res['body']['token']['token_id'];
@@ -81,6 +82,7 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
                 'code' => $res['code']
             ]);
             $this->release();
+            return;
         }
 
         Log::info('Success create sales order to CMPS');
