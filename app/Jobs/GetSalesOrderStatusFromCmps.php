@@ -75,8 +75,8 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
         $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL") . "/partner/"
             . $this->partnerId . "/sales-order-status/id?id=" . $this->orderId;
 
-
         $res = $salesOrderStatus->get($token, $url);
+        //Log::info(print_r($res, true));
 
         if ($res['message'] != 'success') {
             Log::error("Failed to get SalesOrderStatus form CMPS", [
@@ -91,7 +91,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
 
         $data = $res['body'][0];
 
-        if (!isset($data['shipPackage']['trackingId'])) {
+        if (!isset($data['shipPackage'][0]['trackingId'])) {
             Log::info("no updated sales order status", [
                 "channel" => "elevenia",
                 "partnerId" => $this->partnerId,
@@ -109,7 +109,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
             [
                 '$set' => [
                     "acommerce.lastSync" => new \MongoDate(),
-                    "trackingId" => $data['shipPackage']['trackingId'],
+                    "trackingId" => $data['shipPackage'][0]['trackingId'],
                     "status" => 'IN_TRANSIT'
                 ]
             ]
@@ -122,7 +122,7 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
         ]);
 
         // set tracking id to sales order for update to elevenia channel
-        $this->salesOrder["trackingId"] = $data['shipPackage']['trackingId'];
+        $this->salesOrder["trackingId"] = $data['shipPackage'][0]['trackingId'];
 
         $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder));
 
