@@ -15,6 +15,9 @@ class SalesOrderTest extends TestCase
     public $token;
     public $mockEnabled;
 
+    protected $preserveGlobalState=false;
+    protected $runTestInSeparateProcess=true;
+
     public function setUp()
     {
         parent::setUp();

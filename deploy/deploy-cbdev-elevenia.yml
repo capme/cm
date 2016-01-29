@@ -2,7 +2,7 @@
 - hosts: channel-bridge-development
   vars:
     home_path: /home/cmdev
-    app_path: /app/web/channelbridge/elevenia
+    app_path: /app/channelbridge/elevenia
     repo_path: git@bitbucket.org:acommerceplatform/cm-micro-bridge-elevenia.git
 
   tasks:
@@ -45,4 +45,4 @@
     composer:
       no_dev=no
       command=update
-      working_dir={{ home_path }}{{ app_path }}
+      working_dir={{ app_path }}

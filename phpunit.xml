@@ -18,14 +18,11 @@
             <directory>./tests/unit</directory>
         </testsuite>
     </testsuites>
-    <testsuites>
-        <testsuite name="job">
-            <directory>./tests/integration</directory>
-        </testsuite>
-    </testsuites>
     <filter>
         <whitelist>
             <directory suffix=".php">app/Library</directory>
+            <directory suffix=".php">app/Jobs</directory>
+            <directory suffix=".php">app/Console/Commands</directory>
         </whitelist>
     </filter>
     <php>
