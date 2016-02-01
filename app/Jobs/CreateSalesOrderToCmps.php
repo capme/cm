@@ -70,7 +70,7 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
         $salesOrder = $this->getChannelBridgeSalesOrder();
 
         $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL")
-            . "/channel/" . $this->partner['cmps']['username'] . "/order/" . $this->order['ordNo'];
+            . "/channel/" . $this->partner['channel']['elevenia']['name'] . "/order/" . $this->order['ordNo'];
 
         $order['orderCreatedTime'] = gmdate("Y-m-d\TH:i:s\Z", $order['orderCreatedTime']->sec);
 
