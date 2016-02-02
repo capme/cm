@@ -5,15 +5,15 @@ namespace App\Jobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use ChannelBridge\Cmps\SalesOrder;
-use ChannelBridge\Cmps\Auth;
+use ChannelBridge\Cpms\SalesOrder;
+use ChannelBridge\Cpms\Auth;
 use App\Library\Order;
 use Carbon\Carbon;
 use Cache;
 use Log;
 
 
-class CreateSalesOrderToCmps extends Job implements ShouldQueue
+class CreateSalesOrderToCpms extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -25,7 +25,9 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
     {
         $this->order = $order;
         $this->partner = $partner;
-        $this->cacheKey = config('cache.prefix_cmps_token') . $partner['partnerId'];
+        $this->cacheKey = config('cache.prefix_cmps_token')
+            . "elevenia"
+            . $partner['partnerId'];
     }
 
     public function getChannelBridgeSalesOrder()
@@ -52,7 +54,9 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function(){
             $auth = new Auth();
             $url = "https://".getenv("CMPS_BASE_API_URL")."/identity/token";
-            $res = $auth->get($url, $this->partner['cmps']['username'], $this->partner['cmps']['apiKey']);
+            $res = $auth->get($url,
+                $this->partner['channel']['elevenia']['cpms']['username'],
+                $this->partner['channel']['elevenia']['cpms']['apiKey']);
 
             if($res['message'] != 'success'){
                 Log::error('Get CMPS Auth', [
@@ -69,15 +73,15 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
 
         $salesOrder = $this->getChannelBridgeSalesOrder();
 
-        $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL")
-            . "/channel/" . $this->partner['channel']['elevenia']['name'] . "/order/" . $this->order['ordNo'];
+        $url = "https://fulfillment." . getenv("CPMS_BASE_API_URL")
+            . "/channel/" . $this->partner['channel']['elevenia']["cpms"]['channelId'] . "/order/" . $this->order['ordNo'];
 
         $order['orderCreatedTime'] = gmdate("Y-m-d\TH:i:s\Z", $order['orderCreatedTime']->sec);
 
         $res = $salesOrder->create($token, $url, $order);
 
         if ($res['message'] != 'success') {
-            Log::error('Create sales order to CMPS', [
+            Log::error('Create sales order to CPMS', [
                 'message' => $res['message'],
                 'code' => $res['code']
             ]);
@@ -85,6 +89,6 @@ class CreateSalesOrderToCmps extends Job implements ShouldQueue
             return;
         }
 
-        Log::info('Success create sales order to CMPS');
+        Log::info('Success create sales order to CPMS');
     }
 }

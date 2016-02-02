@@ -7,7 +7,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:acommerceplatform/cm-channel-bridge-cmps-package.git"
+            "url": "git@bitbucket.org:acommerceplatform/cm-channel-bridge-cpms-package.git"
         }
     ],
     "require": {
@@ -15,7 +15,7 @@
         "laravel/framework": "5.2.*",
         "jenssegers/mongodb": "~2.2",
         "guzzlehttp/guzzle": "~6.1",
-        "channelbridge/cmps": "dev-master",
+        "channelbridge/cpms": "dev-master",
         "logentries/logentries-monolog-handler": "dev-master"
     },
     "require-dev": {

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\GetSalesOrderStatusFromCmps;
+use App\Jobs\GetSalesOrderStatusFromCpms;
 use App\Model\SalesOrder;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -54,7 +54,7 @@ class SalesOrderUpdate extends Command
             $orderId = $val['orderId'];
             $this->info(sprintf("Dispatching partner %s with orderId %s channel Elevenia", $partnerId, $orderId));
 
-            $this->dispatch(new GetSalesOrderStatusFromCmps($partnerId, $orderId, $val));
+            $this->dispatch(new GetSalesOrderStatusFromCpms($partnerId, $orderId, $val));
         }
     }
 }

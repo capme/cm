@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use ChannelBridge\Cmps\SalesOrderStatus;
-use ChannelBridge\Cmps\Auth as CmpsAuth;
+use ChannelBridge\Cpms\SalesOrderStatus;
+use ChannelBridge\Cpms\Auth as CmpsAuth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,7 +14,7 @@ use Log;
 use App\Model\Partner;
 use App\Model\SalesOrder;
 
-class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
+class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
@@ -29,7 +29,9 @@ class GetSalesOrderStatusFromCmps extends Job implements ShouldQueue
         $this->partnerId = $partnerId;
         $this->orderId = $orderId;
         $this->salesOrder = $salesOrder;
-        $this->cacheKey = config('cache.prefix_cmps_token') . $partnerId;
+        $this->cacheKey = config('cache.prefix_cmps_token')
+            . "elevenia"
+            . $partnerId;
     }
 
     /**
