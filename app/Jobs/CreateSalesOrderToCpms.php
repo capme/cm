@@ -53,7 +53,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
         //get token id from redis. if not exists, authentication to regional
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function(){
             $auth = new Auth();
-            $url = "https://".getenv("CPMS_BASE_API_URL")."/identity/token";
+            $url = getenv("CPMS_PROTOCOL") . getenv("CPMS_BASE_API_URL") . "/identity/token";
             $res = $auth->get($url,
                 $this->partner['channel']['elevenia']['cpms']['username'],
                 $this->partner['channel']['elevenia']['cpms']['apiKey']);
@@ -76,7 +76,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
 
         $salesOrder = $this->getChannelBridgeSalesOrder();
 
-        $url = "https://fulfillment." . getenv("CPMS_BASE_API_URL")
+        $url = getenv('CPMS_PROTOCOL') . "fulfillment." . getenv("CPMS_BASE_API_URL")
             . "/channel/" . $this->partner['channel']['elevenia']["cpms"]['channelId'] . "/order/" . $this->order['ordNo'];
 
         $order['orderCreatedTime'] = gmdate("Y-m-d\TH:i:s\Z", $order['orderCreatedTime']->sec);
