@@ -43,11 +43,21 @@ class SalesOrderCreate extends Command
     {
         // Get partners
         $partners = Partner::raw()->find();
-        $this->info(sprintf('Found %d partners', count($partners)));
+
+        $totalPartner = 0;
+
         // Iterate over partners to create job
         foreach ($partners as $partner) {
+            $totalPartner += 1;
             $this->info('Dispatching partner: '.$partner['partnerId']);
             $this->dispatch(new GetSalesOrderFromChannel($partner));
         }
+
+        if ($totalPartner == 0) {
+            $this->info("No partners were found");
+        } else {
+            $this->info(sprintf('Found %d partners', count($partners)));
+        }
+
     }
 }

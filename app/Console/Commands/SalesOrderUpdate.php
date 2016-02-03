@@ -43,12 +43,10 @@ class SalesOrderUpdate extends Command
     {
         $salesOrder = SalesOrder::raw()->find(["status" => "NEW", "channel.name" => "elevenia"]);
 
-
-        if ($salesOrder) {
-            $this->info(sprintf("Found %s \"NEW\" sales order", count($salesOrder)));
-        }
+        $foundSalesOrder = 0;
 
         foreach ($salesOrder as $val) {
+            $foundSalesOrder += 1;
 
             $partnerId = $val['partnerId'];
             $orderId = $val['orderId'];
@@ -56,5 +54,12 @@ class SalesOrderUpdate extends Command
 
             $this->dispatch(new GetSalesOrderStatusFromCpms($partnerId, $orderId, $val));
         }
+
+        if ($foundSalesOrder == 0 ) {
+            $this->info("No sales order were found");
+        } else {
+            $this->info(sprintf("Found %s \"NEW\" sales order", $foundSalesOrder));
+        }
+
     }
 }
