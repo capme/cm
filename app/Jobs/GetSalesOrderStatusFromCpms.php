@@ -55,7 +55,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
             ]);
 
             $token = new CpmsAuth();
-            $res = $token->get("https://" . getenv("CPMS_BASE_API_URL") . "/identity/token",
+            $res = $token->get(getenv("CPMS_PROTOCOL") . getenv("CPMS_BASE_API_URL") . "/identity/token",
                 $partner['channel']['elevenia']['cpms']['username'],
                 $partner['channel']['elevenia']['cpms']['apiKey']);
 
@@ -78,7 +78,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         $salesOrderStatus = new SalesOrderStatus();
 
         // Get SalesOrderStatus from CMPS
-        $url = "https://fulfillment." . getenv("CMPS_BASE_API_URL") . "/partner/"
+        $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CMPS_BASE_API_URL") . "/partner/"
             . $this->partnerId . "/sales-order-status/id?id=" . $this->orderId;
 
         $res = $salesOrderStatus->get($token, $url);
