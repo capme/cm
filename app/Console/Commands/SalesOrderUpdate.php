@@ -41,7 +41,7 @@ class SalesOrderUpdate extends Command
      */
     public function handle()
     {
-        $salesOrder = SalesOrder::raw()->find(["status" => "NEW"]);
+        $salesOrder = SalesOrder::raw()->find(["status" => "NEW", "channel.name" => "elevenia"]);
 
 
         if ($salesOrder) {
