@@ -53,7 +53,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
         //get token id from redis. if not exists, authentication to regional
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function(){
             $auth = new Auth();
-            $url = "https://".getenv("CMPS_BASE_API_URL")."/identity/token";
+            $url = "https://".getenv("CPMS_BASE_API_URL")."/identity/token";
             $res = $auth->get($url,
                 $this->partner['channel']['elevenia']['cpms']['username'],
                 $this->partner['channel']['elevenia']['cpms']['apiKey']);
@@ -64,12 +64,15 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
                     'message' => $res['message']
                 ]);
 
-                $this->release();
-                return;
+                return null;
             }
 
             return $res['body']['token']['token_id'];
         });
+
+        if (!$token) {
+            return;
+        }
 
         $salesOrder = $this->getChannelBridgeSalesOrder();
 

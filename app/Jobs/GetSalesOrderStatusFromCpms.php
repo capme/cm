@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use ChannelBridge\Cpms\SalesOrderStatus;
-use ChannelBridge\Cpms\Auth as CmpsAuth;
+use ChannelBridge\Cpms\Auth as CpmsAuth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -50,26 +50,30 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         // Get CMPS Token from cache if not exists create new one and save to cache
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function() {
             $partner = Partner::raw()->findOne(["partnerId"=>$this->partnerId], [
-                "cmps.username" => true,
-                "cmps.apiKey" => true
+                "channel.elevenia.cpms.username" => true,
+                "channel.elevenia.cpms.apiKey" => true
             ]);
 
-            Log::info("No key found - get auth from regional");
-            $token = new CmpsAuth();
-            $res = $token->get("https://" . getenv("CMPS_BASE_API_URL") . "/identity/token",
-                $partner['cmps']['username'], $partner['cmps']['apiKey']);
+            $token = new CpmsAuth();
+            $res = $token->get("https://" . getenv("CPMS_BASE_API_URL") . "/identity/token",
+                $partner['channel']['elevenia']['cpms']['username'],
+                $partner['channel']['elevenia']['cpms']['apiKey']);
+
             if ($res['message'] != 'success') {
                 Log::error('CMPS Auth', [
                     'code' => $res['code'],
                     'message' => $res['message']
                 ]);
 
-                $this->release();
-                return;
+                return null;
             }
 
             return $res['body']['token']['token_id'];
         });
+
+        if (!$token) {
+            return;
+        }
 
         $salesOrderStatus = new SalesOrderStatus();
 

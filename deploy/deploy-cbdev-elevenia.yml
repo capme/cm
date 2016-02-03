@@ -2,6 +2,7 @@
 - hosts: channel-bridge-development
   vars:
     home_path: /home/cmdev
+    docker_path: /home/cmdev/docker
     app_path: /app/channelbridge/elevenia
     repo_path: git@bitbucket.org:acommerceplatform/cm-micro-bridge-elevenia.git
 
@@ -46,3 +47,8 @@
       no_dev=no
       command=update
       working_dir={{ app_path }}
+
+  - name: Restart docker container elevenia_channel
+    command: docker-compose -f channelbridge/dev-docker-compose.yml restart elevenia_channel
+    args:
+      chdir: "{{ docker_path }}"
