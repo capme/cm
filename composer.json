@@ -7,20 +7,21 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@bitbucket.org:acommerceplatform/cm-micro-bridge-package.git"
+            "url": "git@bitbucket.org:acommerceplatform/cm-channel-bridge-cpms-package.git"
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=5.6",
         "laravel/framework": "5.2.*",
         "jenssegers/mongodb": "~2.2",
         "guzzlehttp/guzzle": "~6.1",
-        "acommerce/cmp": "dev-master"
+        "channelbridge/cpms": "dev-master",
+        "logentries/logentries-monolog-handler": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~4.0",
+        "phpunit/phpunit": "~5.0",
         "symfony/css-selector": "2.8.*|3.0.*",
         "symfony/dom-crawler": "2.8.*|3.0.*",
         "predis/predis": "~1.0"
