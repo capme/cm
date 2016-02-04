@@ -42,7 +42,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Processing job create sales order to CMPS');
+        Log::info('Processing job create sales order to CPMS');
         $tokenExpiresAt = Carbon::now()->addMinutes(55);
 
         //parse elev structure into regional structure
