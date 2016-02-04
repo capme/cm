@@ -42,7 +42,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
     public function handle()
     {
         $tokenExpiresAt = 50; // Expires CMPS token
-        Log::info('Processing job get sales order from CMPS', [
+        Log::info('Processing job get sales order from CPMS', [
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -60,7 +60,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
                 $partner['channel']['elevenia']['cpms']['apiKey']);
 
             if ($res['message'] != 'success') {
-                Log::error('CMPS Auth', [
+                Log::error('CPMS Auth', [
                     'code' => $res['code'],
                     'message' => $res['message']
                 ]);
@@ -78,14 +78,14 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         $salesOrderStatus = new SalesOrderStatus();
 
         // Get SalesOrderStatus from CMPS
-        $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CMPS_BASE_API_URL") . "/partner/"
+        $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CPMS_BASE_API_URL") . "/partner/"
             . $this->partnerId . "/sales-order-status/id?id=" . $this->orderId;
 
         $res = $salesOrderStatus->get($token, $url);
         //Log::info(print_r($res, true));
 
         if ($res['message'] != 'success') {
-            Log::error("Failed to get SalesOrderStatus form CMPS", [
+            Log::error("Failed to get SalesOrderStatus form CPMS", [
                 "message" => $res["message"],
                 "code" => $res['code']
             ]);
