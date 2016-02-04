@@ -58,7 +58,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
             Log::error('OpenAPI key', [
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
-                'message' => $res['message'],
+                'message' => $res['body']['message'],
                 'body' => $res['body']
             ]);
             $this->release();
