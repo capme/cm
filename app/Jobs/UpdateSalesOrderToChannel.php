@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Model\SalesOrder;
 
 class UpdateSalesOrderToChannel extends Job implements ShouldQueue
 {
@@ -27,7 +28,7 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(array $salesOrder, $updateStep = null, $productIndex = null)
+    public function __construct(array $salesOrder, $updateStep, $productIndex)
     {
         $this->salesOrder = $salesOrder;
         $this->updateStep = $updateStep;
@@ -48,16 +49,10 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
 
         $this->orderService = new Order($partner['channel']['elevenia']['openapikey']);
 
-        if ($this->updateStep === null) {
-            $this->updateStep = 'accept';
-            $this->productIndex = 0;
-        }
-
         Log::info("UpdateSalesOrderToChannel", [
             "step" => $this->updateStep,
             "productIndex" => $this->productIndex,
-            "orderId" => $this->salesOrder['orderId'],
-            "trackingId" => $this->salesOrder['trackingId']
+            "orderId" => $this->salesOrder['channel']["order"]["ordNo"]
         ]);
 
         $products = $this->salesOrder['channel']['order']['productList'];
@@ -67,14 +62,27 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
                 $this->productIndex++;
 
                 if (!isset($products[$this->productIndex])) {
-                    $this->updateStep = 'awb';
-                    $this->productIndex = 0;
+                    return;
                 }
                 break;
             case 'awb':
                 $this->updateAwb($products[$this->productIndex]);
                 $this->productIndex++;
                 if (!isset($products[$this->productIndex])) {
+                    SalesOrder::raw()->update(
+                        [
+                            "orderId" => $this->salesOrder['channel']["order"]["ordNo"],
+                            "partnerId" => $this->salesOrder['partnerId'],
+                            "channel.name" => "elevenia"
+                        ],
+                        [
+                            '$set' => [
+                                "acommerce.lastSync" => new \MongoDate(),
+                                "trackingId" => $this->salesOrder['trackingId'],
+                                "status" => 'IN_TRANSIT'
+                            ]
+                        ]
+                    );
                     return;
                 }
                 break;

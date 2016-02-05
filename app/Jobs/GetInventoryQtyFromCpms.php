@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Jobs;
-
-use ChannelBridge\Cpms\SalesOrderStatus;
+use ChannelBridge\Cpms\InventoryAllocation;
 use ChannelBridge\Cpms\Auth as CpmsAuth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
@@ -12,23 +11,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Cache;
 use Log;
 use App\Model\Partner;
-use App\Model\SalesOrder;
 
-class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
+class GetInventoryQtyFromCpms extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
     protected $partnerId;
-    protected $orderId;
-    protected $order;
-    protected $salesOrder;
+    protected $channel;
     protected $cacheKey;
 
-    public function __construct($partnerId, $orderId, $salesOrder)
+    public function __construct($partnerId, $itemChannel)
     {
         $this->partnerId = $partnerId;
-        $this->orderId = $orderId;
-        $this->salesOrder = $salesOrder;
+        $this->channel = $itemChannel;
         $this->cacheKey = config('cache.prefix_cmps_token')
             . "elevenia"
             . $partnerId;
@@ -75,17 +70,15 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
             return;
         }
 
-        $salesOrderStatus = new SalesOrderStatus();
 
-        // Get SalesOrderStatus from CMPS
-        $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CPMS_BASE_API_URL") . "/partner/"
-            . $this->partnerId . "/sales-order-status/id?id=" . $this->orderId;
+        $inventoryAllocation = new InventoryAllocation();
 
-        $res = $salesOrderStatus->get($token, $url);
-        //Log::info(print_r($res, true));
+        $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CPMS_BASE_API_URL") . "/channel/"
+            . $this->channel['cpms']['channelId'] . "/allocation/merchant" . $this->partnerId;
+        $res = $inventoryAllocation->get($token, $url);
 
         if ($res['message'] != 'success') {
-            Log::error("Failed to get SalesOrderStatus form CPMS", [
+            Log::error("Failed to get Inventory Allocation form CPMS", [
                 "message" => $res["message"],
                 "code" => $res['code']
             ]);
@@ -95,21 +88,10 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 
         }
 
-        $data = $res['body'][0];
-
-        if (!isset($data['shipPackage'][0]['trackingId'])) {
-            Log::info("no updated sales order status", [
-                "channel" => "elevenia",
-                "partnerId" => $this->partnerId,
-                "orderId" => $this->orderId
-            ]);
-            return;
+        foreach($res['body'] as $itemSku){
+            Log::info('Send SKU '.$itemSku['sku'].' to job update qty channel');
+            //$this->dispatch(new UpdateInventoryQtyToChannel($itemSku));
         }
-
-        // set tracking id to sales order for update to elevenia channel
-        $this->salesOrder["trackingId"] = $data['shipPackage'][0]['trackingId'];
-
-        $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder, "awb", 0));
 
     }
 }
