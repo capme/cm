@@ -106,31 +106,10 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
             return;
         }
 
-        SalesOrder::raw()->update(
-            [
-                "orderId" => $this->orderId,
-                "partnerId" => $this->partnerId,
-                "channel.name" => "elevenia"
-            ],
-            [
-                '$set' => [
-                    "acommerce.lastSync" => new \MongoDate(),
-                    "trackingId" => $data['shipPackage'][0]['trackingId'],
-                    "status" => 'IN_TRANSIT'
-                ]
-            ]
-        );
-
-        Log::info("success update sales order status on mongo", [
-            "channel" => "elevenia",
-            "partnerId" => $this->partnerId,
-            "orderId" => $this->orderId
-        ]);
-
         // set tracking id to sales order for update to elevenia channel
         $this->salesOrder["trackingId"] = $data['shipPackage'][0]['trackingId'];
 
-        $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder));
+        $this->dispatch(new UpdateSalesOrderToChannel($this->salesOrder, "awb", 0));
 
     }
 }

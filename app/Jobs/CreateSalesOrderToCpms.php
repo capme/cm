@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,24 +16,19 @@ use Log;
 
 class CreateSalesOrderToCpms extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
-    protected $order;
+    protected $orderElev;
     protected $partner;
     protected $cacheKey;
 
-    public function __construct(array $partner, $order)
+    public function __construct(array $partner, $orderElev)
     {
-        $this->order = $order;
+        $this->orderElev = $orderElev;
         $this->partner = $partner;
         $this->cacheKey = config('cache.prefix_cmps_token')
             . "elevenia"
             . $partner['partnerId'];
-    }
-
-    public function getChannelBridgeSalesOrder()
-    {
-        return new SalesOrder();
     }
 
     /**
@@ -48,7 +44,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
         //parse elev structure into regional structure
         $order = new Order($this->partner['channel']['elevenia']['openapikey']);
 
-        $order = $order->parseOrderFromEleveniaToCmps($this->partner['partnerId'], $this->order);
+        $order = $order->parseOrderFromEleveniaToCmps($this->partner['partnerId'], $this->orderElev);
 
         //get token id from redis. if not exists, authentication to regional
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function(){
@@ -74,22 +70,28 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
             return;
         }
 
-        $salesOrder = $this->getChannelBridgeSalesOrder();
+        $salesOrder = new SalesOrder();
 
         $url = getenv('CPMS_PROTOCOL') . "fulfillment." . getenv("CPMS_BASE_API_URL")
-            . "/channel/" . $this->partner['channel']['elevenia']["cpms"]['channelId'] . "/order/" . $this->order['ordNo'];
+            . "/channel/" . $this->partner['channel']['elevenia']["cpms"]['channelId']
+            . "/order/" . $this->orderElev['ordNo'];
 
         $order['orderCreatedTime'] = gmdate("Y-m-d\TH:i:s\Z", $order['orderCreatedTime']->sec);
 
         $res = $salesOrder->create($token, $url, $order);
 
-        if ($res['message'] != 'success') {
+        if ($res['message'] != 'success' && $res['code'] != 501) {
             Log::error('Create sales order to CPMS', [
                 'message' => $res['message'],
                 'code' => $res['code']
             ]);
-            $this->release();
+
             return;
+        } else { // if success create sales order to CPMS update channel to set accept order
+            $this->dispatch(new UpdateSalesOrderToChannel([
+                "partnerId" => $this->partner['partnerId'],
+                "channel" => ["order" => $this->orderElev]
+            ], "accept", 0));
         }
 
         Log::info('Success create sales order to CPMS');
