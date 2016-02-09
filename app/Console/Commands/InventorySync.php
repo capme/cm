@@ -45,6 +45,7 @@ class InventorySync extends Command
         $partner = Partner::raw()->find([]);
         foreach($partner as $val){
             $partnerId = $val['partnerId'];
+            //get qty for each partner on each channel in CPMS and then dispatch it
             foreach($val['channel'] as $keyChannel => $itemChannel){
                 $this->info("Get Qty From Partner Id ".$partnerId.", Channel : " . $keyChannel);
                 $this->dispatch(new GetInventoryQtyFromCpms($partnerId, $itemChannel));
