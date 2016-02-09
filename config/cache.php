@@ -76,6 +76,6 @@ return [
 
     'prefix' => 'cbelev',
 
-    'prefix_cmps_token' => 'cmpstoken',
+    'prefix_cpms_token' => 'cpmstoken',
 
 ];

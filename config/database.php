@@ -89,12 +89,25 @@ return [
             'driver' => 'mongodb',
             'host' => env('DB_HOST', 'localhost'),
             'port' => env('DB_PORT', 27017),
-            'database' => env('DB_DATABASE', ''),
-            'username' => env('DB_USERNAME', ''),
-            'password' => env('DB_PASSWORD', ''),
-            'options' => array(
+            'database' => env('DB_DATABASE'),
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
+            'options' => [
                 'db' => env('DB_AUTH_DATABASE', 'admin')
-            )
+            ]
+        ],
+
+        'mongodb_replication' => [
+            'driver' => 'mongodb',
+            'host' => [env('DB_HOST1'), env('DB_HOST2')],
+            'port' => env('DB_PORT', 27017),
+            'database' => env('DB_DATABASE'),
+            'username' => env('DB_USERNAME'),
+            'password' => env('DB_PASSWORD'),
+            'options' => [
+                'db' => env('DB_AUTH_DATABASE'),
+                'replicaSet' => env('DB_REPLICA_SET')
+            ]
         ],
 
     ],

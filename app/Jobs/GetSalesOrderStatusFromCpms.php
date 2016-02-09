@@ -12,7 +12,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Cache;
 use Log;
 use App\Model\Partner;
-use App\Model\SalesOrder;
 
 class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 {
@@ -29,7 +28,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         $this->partnerId = $partnerId;
         $this->orderId = $orderId;
         $this->salesOrder = $salesOrder;
-        $this->cacheKey = config('cache.prefix_cmps_token')
+        $this->cacheKey = config('cache.prefix_cpms_token')
             . "elevenia"
             . $partnerId;
     }
@@ -42,7 +41,8 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
     public function handle()
     {
         $tokenExpiresAt = 50; // Expires CMPS token
-        Log::info('Processing job get sales order from CPMS', [
+        Log::debug('GetSalesOrderStatusFromCpms', [
+            'status' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -60,9 +60,11 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
                 $partner['channel']['elevenia']['cpms']['apiKey']);
 
             if ($res['message'] != 'success') {
-                Log::error('CPMS Auth', [
-                    'code' => $res['code'],
-                    'message' => $res['message']
+                Log::error('GetSalesOrderStatusFromCpms', [
+                    'status' => 'get auth from cpms',
+                    'channel' => 'elevenia',
+                    'partnerId' => $this->partnerId,
+                    'response' => $res
                 ]);
 
                 return null;
@@ -85,9 +87,11 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         //Log::info(print_r($res, true));
 
         if ($res['message'] != 'success') {
-            Log::error("Failed to get SalesOrderStatus form CPMS", [
-                "message" => $res["message"],
-                "code" => $res['code']
+            Log::error("GetSalesOrderStatusFromCpms", [
+                'status' => 'failed to get salesorder status from cpms',
+                'channel' => 'elevenia',
+                'partnerId' =>$this->partnerId ,
+                'response' => $res
             ]);
 
             $this->release();
@@ -98,7 +102,8 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
         $data = $res['body'][0];
 
         if (!isset($data['shipPackage'][0]['trackingId'])) {
-            Log::info("no updated sales order status", [
+            Log::debug("GetSalesOrderStatusFromCpms", [
+                'status' => 'No updated status',
                 "channel" => "elevenia",
                 "partnerId" => $this->partnerId,
                 "orderId" => $this->orderId
