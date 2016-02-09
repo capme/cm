@@ -26,7 +26,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
     {
         $this->orderElev = $orderElev;
         $this->partner = $partner;
-        $this->cacheKey = config('cache.prefix_cmps_token')
+        $this->cacheKey = config('cache.prefix_cpms_token')
             . "elevenia"
             . $partner['partnerId'];
     }
@@ -38,7 +38,10 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Processing job create sales order to CPMS');
+        Log::debug('CreateSalesOrderToCpms', [
+            'status' => 'Starting job...',
+            'partnerId' => $this->partner['partnerId'],
+        ]);
         $tokenExpiresAt = Carbon::now()->addMinutes(55);
 
         //parse elev structure into regional structure
@@ -55,9 +58,9 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
                 $this->partner['channel']['elevenia']['cpms']['apiKey']);
 
             if($res['message'] != 'success'){
-                Log::error('Get CMPS Auth', [
-                    'code' => $res['code'],
-                    'message' => $res['message']
+                Log::error('CreateSalesOrderToCpms', [
+                    'status' => 'get auth from cpms',
+                    'response' => $res
                 ]);
 
                 return null;
@@ -81,9 +84,9 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
         $res = $salesOrder->create($token, $url, $order);
 
         if ($res['message'] != 'success' && $res['code'] != 501) {
-            Log::error('Create sales order to CPMS', [
-                'message' => $res['message'],
-                'code' => $res['code']
+            Log::error('CreateSalesOrderToCpms', [
+                'status' => 'Create sales order to cpms',
+                'response' => $res
             ]);
 
             return;
@@ -93,7 +96,5 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
                 "channel" => ["order" => $this->orderElev]
             ], "accept", 0));
         }
-
-        Log::info('Success create sales order to CPMS');
     }
 }

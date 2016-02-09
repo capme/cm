@@ -24,7 +24,7 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
     {
         $this->partnerId = $partnerId;
         $this->channel = $itemChannel;
-        $this->cacheKey = config('cache.prefix_cmps_token')
+        $this->cacheKey = config('cache.prefix_cpms_token')
             . "elevenia"
             . $partnerId;
     }
@@ -37,7 +37,8 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
     public function handle()
     {
         $tokenExpiresAt = 50; // Expires CMPS token
-        Log::info('Processing job get sales order from CPMS', [
+        Log::debug('GetInventoryQtyFromCpms', [
+            'status' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -55,9 +56,9 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
                 $partner['channel']['elevenia']['cpms']['apiKey']);
 
             if ($res['message'] != 'success') {
-                Log::error('CPMS Auth', [
-                    'code' => $res['code'],
-                    'message' => $res['message']
+                Log::error('GetInventoryQtyFromCpms', [
+                    'status' => 'get auth from cpms',
+                    'res' => $res
                 ]);
 
                 return null;
@@ -78,9 +79,9 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
         $res = $inventoryAllocation->get($token, $url);
 
         if ($res['message'] != 'success') {
-            Log::error("Failed to get Inventory Allocation form CPMS", [
-                "message" => $res["message"],
-                "code" => $res['code']
+            Log::error("GetInventoryQtyFromCpms", [
+                'status' => 'failed to get inventory',
+                'response' => $res
             ]);
 
             $this->release();
@@ -89,7 +90,7 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
         }
 
         foreach($res['body'] as $itemSku){
-            Log::info('Send SKU '.$itemSku['sku'].' to job update qty channel');
+            // TODO - dispatch job to update Inventory quantity
             //$this->dispatch(new UpdateInventoryQtyToChannel($itemSku));
         }
 
