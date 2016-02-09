@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\SalesOrderCreate::class,
         Commands\SalesOrderUpdate::class,
-        Commands\InventorySync::class
+        Commands\InventorySync::class,
+        Commands\ProductList::class
     ];
 
     /**

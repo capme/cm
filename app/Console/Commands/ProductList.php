@@ -4,19 +4,18 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use App\Model\Product;
 use App\Model\Partner;
-use App\Jobs\GetInventoryQtyFromCpms;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Library\Inventory;
 
-class InventorySync extends Command
+class ProductList extends Command
 {
-    use DispatchesJobs;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'inventory:sync';
+    protected $signature = 'product:list';
 
     /**
      * The console command description.
@@ -45,10 +44,12 @@ class InventorySync extends Command
         $partner = Partner::raw()->find([]);
         foreach($partner as $val){
             $partnerId = $val['partnerId'];
-            //get qty for each partner on each channel in CPMS and then dispatch it
-            foreach($val['channel'] as $keyChannel => $itemChannel){
-                $this->info("Get Qty From Partner Id ".$partnerId.", Channel : " . $keyChannel);
-                $this->dispatch(new GetInventoryQtyFromCpms($partnerId, $itemChannel));
+            $openApiKeyElevenia = $val['channel']['elevenia']['openapikey'];
+            $product = new Inventory($openApiKeyElevenia);
+            $res = $product->getListProduct();
+            foreach($res['body']['product'] as $valProduct) {
+                $data = ['partnerId' => $partnerId, 'prdNo' => $valProduct['prdNo'], 'sellerPrdCd' => $valProduct['sellerPrdCd']];
+                $product->save($partnerId,$data);
             }
         }
     }
