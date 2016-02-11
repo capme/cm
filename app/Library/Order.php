@@ -93,7 +93,7 @@ class Order
 		return $res;
 	}
 
-	public function parseOrderFromEleveniaToCmps($partnerId, $orderElev)
+	public function parseOrderFromEleveniaToCpms($partnerId, $orderElev)
 	{
 		$orderItem = [];
 		foreach($orderElev['productList'] as $val)
@@ -218,7 +218,7 @@ class Order
 
 	public function save($partnerId, $orderElevenia)
 	{
-		$orderCmps = $this->parseOrderFromEleveniaToCmps($partnerId, $orderElevenia);
+		$orderCmps = $this->parseOrderFromEleveniaToCpms($partnerId, $orderElevenia);
 		$order = [
 			"orderId" => $orderElevenia['ordNo'],
 			"partnerId" => $partnerId,

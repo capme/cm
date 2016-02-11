@@ -39,7 +39,8 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
     public function handle()
     {
         Log::debug('CreateSalesOrderToCpms', [
-            'status' => 'Starting job...',
+            'message' => 'Starting job...',
+            'channel' => 'elevenia',
             'partnerId' => $this->partner['partnerId'],
         ]);
         $tokenExpiresAt = Carbon::now()->addMinutes(55);
@@ -47,7 +48,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
         //parse elev structure into regional structure
         $order = new Order($this->partner['channel']['elevenia']['openapikey']);
 
-        $order = $order->parseOrderFromEleveniaToCmps($this->partner['partnerId'], $this->orderElev);
+        $order = $order->parseOrderFromEleveniaToCpms($this->partner['partnerId'], $this->orderElev);
 
         //get token id from redis. if not exists, authentication to regional
         $token = Cache::remember($this->cacheKey, $tokenExpiresAt, function(){
@@ -59,7 +60,9 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
 
             if($res['message'] != 'success'){
                 Log::error('CreateSalesOrderToCpms', [
-                    'status' => 'get auth from cpms',
+                    'message' => 'get auth from cpms',
+                    'channel' => 'elevenia',
+                    'partnerId' => $this->partner['partnerId'],
                     'response' => $res
                 ]);
 
@@ -85,7 +88,11 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
 
         if ($res['message'] != 'success' && $res['code'] != 501) {
             Log::error('CreateSalesOrderToCpms', [
-                'status' => 'Create sales order to cpms',
+                'message' => 'Create sales order to cpms',
+                'channel' => 'elevenia',
+                'partnerId' => $this->partner['partnerId'],
+                'token' => $token,
+                'url' => $url,
                 'response' => $res
             ]);
 
