@@ -38,7 +38,7 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
     {
         $tokenExpiresAt = 50; // Expires CMPS token
         Log::debug('GetInventoryQtyFromCpms', [
-            'status' => 'starting job',
+            'message' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -57,8 +57,10 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
 
             if ($res['message'] != 'success') {
                 Log::error('GetInventoryQtyFromCpms', [
-                    'status' => 'get auth from cpms',
-                    'res' => $res
+                    'message' => 'get auth from cpms',
+                    'channel' => 'elevenia',
+                    'partnerId' => $this->partnerId,
+                    'response' => $res
                 ]);
 
                 return null;
@@ -80,7 +82,11 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
 
         if ($res['message'] != 'success') {
             Log::error("GetInventoryQtyFromCpms", [
-                'status' => 'failed to get inventory',
+                'message' => 'failed to get inventory',
+                'channel' => 'elevenia',
+                'partnerId' => $this->partnerId,
+                'token' => $token,
+                'url' => $url,
                 'response' => $res
             ]);
 

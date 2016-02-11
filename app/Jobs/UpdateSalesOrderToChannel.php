@@ -49,7 +49,7 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
         $this->orderService = new Order($partner['channel']['elevenia']['openapikey']);
 
         Log::debug("UpdateSalesOrderToChannel", [
-            "status" => 'set ' . $this->updateStep,
+            "message" => 'set ' . $this->updateStep,
             "channel" => 'elevenia',
             'partnerId' => $this->salesOrder['partnerId'],
             "orderId" => $this->salesOrder['channel']["order"]["ordNo"]
@@ -100,7 +100,8 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
         ]);
         if ($res['code'] !== 200) {
             Log::error('UpdateSalesOrderToChannel', [
-                'status' => 'set accept',
+                'message' => 'set accept',
+                'partnerId' => $this->salesOrder['partnerId'],
                 'channel' => 'elevenia',
                 'response' => $res,
             ]);
@@ -123,7 +124,8 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
 
         if ($res['code'] !== 200) {
             Log::error('UpdateSalesOrderToChannel', [
-                'status' => 'set awb',
+                'message' => 'set awb',
+                'partnerId' => $this->salesOrder['partnerId'],
                 'channel' => 'elevenia',
                 'response' => $res,
             ]);

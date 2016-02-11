@@ -42,7 +42,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
     {
         $tokenExpiresAt = 50; // Expires CMPS token
         Log::debug('GetSalesOrderStatusFromCpms', [
-            'status' => 'starting job',
+            'message' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -61,7 +61,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 
             if ($res['message'] != 'success') {
                 Log::error('GetSalesOrderStatusFromCpms', [
-                    'status' => 'get auth from cpms',
+                    'message' => 'get auth from cpms',
                     'channel' => 'elevenia',
                     'partnerId' => $this->partnerId,
                     'response' => $res
@@ -88,9 +88,11 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 
         if ($res['message'] != 'success') {
             Log::error("GetSalesOrderStatusFromCpms", [
-                'status' => 'failed to get salesorder status from cpms',
+                'message' => 'failed to get salesorder status from cpms',
                 'channel' => 'elevenia',
-                'partnerId' =>$this->partnerId ,
+                'partnerId' =>$this->partnerId,
+                'token' => $token,
+                'url' => $url,
                 'response' => $res
             ]);
 
@@ -103,7 +105,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 
         if (!isset($data['shipPackage'][0]['trackingId'])) {
             Log::debug("GetSalesOrderStatusFromCpms", [
-                'status' => 'No updated status',
+                'message' => 'No updated status',
                 "channel" => "elevenia",
                 "partnerId" => $this->partnerId,
                 "orderId" => $this->orderId

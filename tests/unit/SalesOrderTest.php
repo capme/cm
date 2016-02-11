@@ -646,7 +646,7 @@ class SalesOrderTest extends TestCase
     public function testParseOrderFromEleveniaToCmps()
     {
         $order = new Order($this->token);
-        $res = $order->parseOrderFromEleveniaToCmps(143, $this->orderEleveniaFormat());
+        $res = $order->parseOrderFromEleveniaToCpms(143, $this->orderEleveniaFormat());
 
         $this->assertEquals($res['customerInfo'],
             [

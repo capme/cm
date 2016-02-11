@@ -30,7 +30,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
     public function handle()
     {
         Log::info('GetSalesOrderFromChannel', [
-            'status' => 'starting job',
+            'message' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partner['partnerId']
         ]);
@@ -52,7 +52,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
         // Retry if unsucessful http request
         if ($res['code'] !== 200 || isset($res['body']['message'])) {
             Log::error('GetSalesOrderFromChannel', [
-                'status' => 'get sales order from channel',
+                'message' => 'get sales order from channel',
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
                 'response' => $res
@@ -63,7 +63,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
 
         if (!isset($res['body']['order'])) {
             Log::debug('GetSalesOrderFromChannel', [
-                'status' => 'no new order',
+                'message' => 'no new order',
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId']
             ]);
@@ -76,7 +76,7 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
 
             $order->save($this->partner['partnerId'], $orderElev);
             Log::debug('GetSalesOrderFromChannel', [
-                'status' => 'save to mongodb has been succeed',
+                'message' => 'save to mongodb has been succeed',
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
                 'orderId' => $orderElev['ordNo'],
