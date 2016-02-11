@@ -22,7 +22,7 @@ class SalesOrderUpdate extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Get Sales Order Status Update and update AWB to Channel';
 
     /**
      * Create a new command instance.
