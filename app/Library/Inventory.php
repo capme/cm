@@ -20,13 +20,46 @@ class Inventory
         $this->token = $token;
     }
 
-    public function getListProduct()
+    public function getListProduct($page = 1)
     {
-        $url = $this->baseUrl . '/prodservices/product/list';
+        $url = $this->baseUrl . '/prodservices/product/list?page='.$page;
 
         $res = $this->request('GET', $url);
 
         return $res;
+    }
+
+    public function getProductDetail($productNum)
+    {
+        $url = $this->baseUrl . '/prodservices/product/details/'.$productNum;
+
+        $res = $this->request('GET', $url);
+
+        return $res;
+    }
+
+    public function getProductStockNum($productNum)
+    {
+        $url = $this->baseUrl . '/prodmarketservice/prodmarket/stck/' . $productNum;
+
+        $res = $this->request('GET', $url);
+
+        return $res;
+    }
+
+    public function updateProductStock($productId, $productStockNum, $stockQty)
+    {
+        $url = $this->baseUrl . '/prodservices/stockqty/' . $productStockNum;
+
+        $body = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ProductStock>
+  <prdNo>$productId</prdNo>
+  <prdStckNo>$productStockNum</prdStckNo>
+  <stckQty>$stockQty</stckQty>
+</ProductStock>
+EOT;
+
     }
 
     private function request($method, $url, $options=[])
