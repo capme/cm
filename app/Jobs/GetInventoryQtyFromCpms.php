@@ -24,7 +24,7 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
     {
         $this->partnerId = $partnerId;
         $this->channel = $itemChannel;
-        $this->cacheKey = config('cache.prefix_cmps_token')
+        $this->cacheKey = config('cache.prefix_cpms_token')
             . "elevenia"
             . $partnerId;
     }
@@ -37,7 +37,8 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
     public function handle()
     {
         $tokenExpiresAt = 50; // Expires CMPS token
-        Log::info('Processing job get inventory from CPMS', [
+        Log::debug('GetInventoryQtyFromCpms', [
+            'message' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partnerId,
         ]);
@@ -55,9 +56,11 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
                 $partner['channel']['elevenia']['cpms']['apiKey']);
 
             if ($res['message'] != 'success') {
-                Log::error('CPMS Auth', [
-                    'code' => $res['code'],
-                    'message' => $res['message']
+                Log::error('GetInventoryQtyFromCpms', [
+                    'message' => 'get auth from cpms',
+                    'channel' => 'elevenia',
+                    'partnerId' => $this->partnerId,
+                    'response' => $res
                 ]);
 
                 return null;
@@ -79,9 +82,13 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
         $res = $inventoryAllocation->get($token, $url);
 
         if ($res['message'] != 'success') {
-            Log::error("Failed to get Inventory Allocation form CPMS", [
-                "message" => $res["message"],
-                "code" => $res['code']
+            Log::error("GetInventoryQtyFromCpms", [
+                'message' => 'failed to get inventory',
+                'channel' => 'elevenia',
+                'partnerId' => $this->partnerId,
+                'token' => $token,
+                'url' => $url,
+                'response' => $res
             ]);
 
             $this->release();

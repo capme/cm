@@ -29,7 +29,8 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('Running job get new sales order from channel', [
+        Log::info('GetSalesOrderFromChannel', [
+            'message' => 'starting job',
             'channel' => 'elevenia',
             'partnerId' => $this->partner['partnerId']
         ]);
@@ -50,18 +51,19 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
 
         // Retry if unsucessful http request
         if ($res['code'] !== 200 || isset($res['body']['message'])) {
-            Log::error('OpenAPI key', [
+            Log::error('GetSalesOrderFromChannel', [
+                'message' => 'get sales order from channel',
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
-                'message' => $res['body']['message'],
-                'body' => $res['body']
+                'response' => $res
             ]);
             $this->release();
             return;
         }
 
         if (!isset($res['body']['order'])) {
-            Log::info('No new order', [
+            Log::debug('GetSalesOrderFromChannel', [
+                'message' => 'no new order',
                 'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId']
             ]);
@@ -73,7 +75,9 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
         foreach ($orders as $orderElev) {
 
             $order->save($this->partner['partnerId'], $orderElev);
-            Log::info('success saving new order to mongodb', [
+            Log::debug('GetSalesOrderFromChannel', [
+                'message' => 'save to mongodb has been succeed',
+                'channel' => 'elevenia',
                 'partnerId' => $this->partner['partnerId'],
                 'orderId' => $orderElev['ordNo'],
             ]);

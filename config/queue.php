@@ -61,7 +61,7 @@ return [
         'redis' => [
             'driver'     => 'redis',
             'connection' => 'default',
-            'queue'      => 'default',
+            'queue'      => 'cb-elevenia',
             'expire'     => 60,
         ],
 
@@ -79,7 +79,7 @@ return [
     */
 
     'failed' => [
-        'database' => env('DB_CONNECTION', 'mysql'),
+        'database' => env('DB_FAILED_JOB', 'sqlite'),
         'table'    => 'failed_jobs',
     ],
 

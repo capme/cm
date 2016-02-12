@@ -46,12 +46,12 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
             'partnerId' => $this->salesOrder['partnerId']
         ]);
 
-
         $this->orderService = new Order($partner['channel']['elevenia']['openapikey']);
 
-        Log::info("UpdateSalesOrderToChannel", [
-            "step" => $this->updateStep,
-            "productIndex" => $this->productIndex,
+        Log::debug("UpdateSalesOrderToChannel", [
+            "message" => 'set ' . $this->updateStep,
+            "channel" => 'elevenia',
+            'partnerId' => $this->salesOrder['partnerId'],
             "orderId" => $this->salesOrder['channel']["order"]["ordNo"]
         ]);
 
@@ -99,10 +99,11 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
             'ordPrdSeq' => $product['ordPrdSeq'],
         ]);
         if ($res['code'] !== 200) {
-            Log::error('Update accept', [
-                'type' => 'job',
-                'job' => __CLASS__,
-                'body' => $res,
+            Log::error('UpdateSalesOrderToChannel', [
+                'message' => 'set accept',
+                'partnerId' => $this->salesOrder['partnerId'],
+                'channel' => 'elevenia',
+                'response' => $res,
             ]);
             throw new \ErrorException('Acccepting order error');
         }
@@ -122,10 +123,11 @@ class UpdateSalesOrderToChannel extends Job implements ShouldQueue
         ]);
 
         if ($res['code'] !== 200) {
-            Log::error('Update AWB', [
-                'type' => 'job',
-                'job' => __CLASS__,
-                'body' => $res,
+            Log::error('UpdateSalesOrderToChannel', [
+                'message' => 'set awb',
+                'partnerId' => $this->salesOrder['partnerId'],
+                'channel' => 'elevenia',
+                'response' => $res,
             ]);
             throw new \ErrorException('Update AWB error');
         }

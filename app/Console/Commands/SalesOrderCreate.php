@@ -22,7 +22,7 @@ class SalesOrderCreate extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'get sales order from CHANNEL and create to CPMS';
 
     /**
      * Create a new command instance.
