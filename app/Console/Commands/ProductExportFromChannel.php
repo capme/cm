@@ -79,7 +79,7 @@ class ProductExportFromChannel extends Command
 
             // So, yeah, this shit can happen as well
             $products = isset($res['body']['product']) ? $res['body']['product'] : [];
-            if (!isset($products[0]))
+            if (count($products) && !isset($products[0]))
                 $products = [$products]; // Goddamn xml we need to check whether there's only 1 product
             $this->info(sprintf('Found %d products', count($products)));
             foreach ($products as $product) {
@@ -121,7 +121,7 @@ class ProductExportFromChannel extends Command
         } while (count($products));
 
         fclose($fp);
-        $this->info(sprintf('Successfully expoted %d products', $count));
+        $this->info(sprintf('Successfully exported %d products', $count));
     }
 
     protected function operationError($message)
