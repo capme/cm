@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\InventorySync::class,
         Commands\ProductList::class,
         Commands\ProductExportFromChannel::class,
+        Commands\ProductImportToDB::class,
     ];
 
     /**
