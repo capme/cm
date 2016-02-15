@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Model\Product;
+use App\Model\ChannelProduct;
 
 class ProductImportToDB extends Command
 {
@@ -92,7 +92,7 @@ class ProductImportToDB extends Command
 
 
 
-                Product::raw()->update(
+                ChannelProduct::raw()->update(
                     $product,
                     ['$setOnInsert' => $product],
                     ["upsert" => true]
