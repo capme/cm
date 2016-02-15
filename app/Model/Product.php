@@ -6,5 +6,5 @@ use Jenssegers\Mongodb\Model as Eloquent;
 
 class Product extends Eloquent {
 
-    protected $collection = 'elevenia_product';
+    protected $collection = 'channelproducts';
 }
