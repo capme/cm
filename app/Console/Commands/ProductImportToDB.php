@@ -59,6 +59,7 @@ class ProductImportToDB extends Command
 
             foreach($rows as $key => $value) {
                 $arr = explode("|",$key);
+                if(trim($arr[0]) == "") continue;
                 $product = [
                     "channel" => "elevenia",
                     "partnerId" => $this->partnerId,
