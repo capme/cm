@@ -38,13 +38,21 @@ class Inventory
         return $res;
     }
 
-    public function getProductStockNum($productNum)
+    public function getProductStockNumbers($productNum)
     {
         $url = $this->baseUrl . '/prodmarketservice/prodmarket/stck/' . $productNum;
 
         $res = $this->request('GET', $url);
 
         return $res;
+    }
+
+    public function getProductStockNumberBySku($productNum)
+    {
+        // get prdNo & variant from mongodb
+        // get list of prdStckNo from elevenia
+        // match variant from mongodb with elevenia to get prdStckNo
+
     }
 
     public function updateProductStock($productId, $productStockNum, $stockQty)

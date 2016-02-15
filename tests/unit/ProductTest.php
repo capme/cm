@@ -27,6 +27,80 @@ class ProductTest extends TestCase
         $this->mockEnabled = true;
     }
 
+    public function testGetProductStockNumBySku()
+    {
+        $product = new Inventory($this->token);
+
+        $xmlResponse = <<<EOT
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProductStocks>
+    <ProductStock>
+        <addPrc>0</addPrc>
+        <mixDtlOptNm>Brown,9</mixDtlOptNm>
+        <mixOptNm>,Size</mixOptNm>
+        <mixOptNo>2,1</mixOptNo>
+        <optWght>0</optWght>
+        <prdNo>6173252</prdNo>
+        <prdStckNo>1559066387</prdStckNo>
+        <prdStckStatCd>01</prdStckStatCd>
+        <selQty>10</selQty>
+        <stckQty>3</stckQty>
+    </ProductStock>
+    <ProductStock>
+        <addPrc>0</addPrc>
+        <mixDtlOptNm>White,8</mixDtlOptNm>
+        <mixOptNm>,Size</mixOptNm>
+        <mixOptNo>2,1</mixOptNo>
+        <optWght>0</optWght>
+        <prdNo>6173252</prdNo>
+        <prdStckNo>1559066388</prdStckNo>
+        <prdStckStatCd>01</prdStckStatCd>
+        <selQty>0</selQty>
+        <stckQty>8</stckQty>
+    </ProductStock>
+    <prdNm>Sepatu Mbak Titi</prdNm>
+    <prdNo>19281740</prdNo>
+    <productComponents/>
+    <sellerPrdCd>null</sellerPrdCd>
+</ProductStocks>
+EOT;
+
+        $this->mockProduct($product, [
+            new Response(200, [], $xmlResponse)
+        ]);
+
+        $sku = 'SPT9BR';
+
+        $mock = Mockery::mock('Illuminate\Database\Eloquent\Model', 'App\Model\Product');
+        $mock->shouldReceive('raw->findOne')->andReturn(json_decode('{
+    "_id" : "56bdaf25e4e41fbd1e1833f5",
+    "channel" : "elevenia",
+    "partnerId" : 303,
+    "prdNo" : 19281740,
+    "prdName" : "Sepatu Mbak Titi",
+    "items" : [
+        {
+            "sku" : "SPT9BR",
+            "variant" : [
+                "Brown",
+                "9"
+            ]
+        },
+        {
+            "sku" : "SP8WT",
+            "variant" : [
+                "White",
+                "8"
+            ]
+        }
+    ]
+}'));
+
+        $stockNum = $product->getProductStockNumberBySku($sku);
+
+        $this->assertEquals('1559066387', $stockNum);
+    }
+
     public function testServerClientNetworkError()
     {
         $product = new Inventory($this->token);
