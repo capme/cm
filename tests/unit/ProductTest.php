@@ -40,13 +40,6 @@ class ProductTest extends TestCase
         $this->assertTrue($arr2 === explode(',', $txt2));
     }
 
-    public function testCall()
-    {
-        $product = new Inventory($this->token, 100);
-        $res = $product->getProductStockNumbers('10548798');
-        print(var_export($res, true));
-    }
-
     public function testGetProductStockNumBySku()
     {
         $product = new Inventory($this->token);
@@ -113,7 +106,7 @@ EOT;
 
         $res = $product->getProductStockNumberBySku($sku);
         $this->assertEquals($res['code'], 200);
-        $this->assertEquals($res['body'], $productStockNum);
+        $this->assertEquals($res['body']['prdStckNo'], $productStockNum);
     }
 
     public function testServerClientNetworkError()

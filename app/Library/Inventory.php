@@ -76,7 +76,7 @@ class Inventory
             if ($item['variant'] == $stockOptions) {
                 return [
                     'code' => 200,
-                    'body' => $productStock['prdStckNo'],
+                    'body' => $productStock,
                 ];
             }
         }
@@ -87,19 +87,32 @@ class Inventory
         ];
     }
 
-    public function updateProductStock($productId, $productStockNum, $stockQty)
+    public function updateProductStock($sku, $stockQty)
     {
-        $url = $this->baseUrl . '/prodservices/stockqty/' . $productStockNum;
+        $res = $this->getProductStockNumberBySku($sku);
+        if ($res['code'] !== 200) {
+            return $res;
+        }
+
+        $prdNo = $res['body']['prdNo'];
+        $prdStckNo = $res['body']['prdStckNo'];
+
+        $url = $this->baseUrl . '/prodservices/stockqty/' . $prdStckNo;
 
         $body = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <ProductStock>
-  <prdNo>$productId</prdNo>
-  <prdStckNo>$productStockNum</prdStckNo>
+  <prdNo>$prdNo</prdNo>
+  <prdStckNo>$prdStckNo</prdStckNo>
   <stckQty>$stockQty</stckQty>
 </ProductStock>
 EOT;
 
+        $res = $this->request('PUT', $url, [
+            'body' => $body,
+        ]);
+
+        return $res;
     }
 
     private function request($method, $url, $options=[])

@@ -106,7 +106,7 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
         if (count($res['body'])) {
             foreach($res['body'] as $itemSku){
                 Log::info('Send SKU '.$itemSku['sku'].' to job update qty channel');
-                $this->dispatch(new UpdateInventoryQtyToChannel($itemSku));
+                $this->dispatch(new UpdateInventoryQtyToChannel($this->partnerId, $itemSku));
             }
         }
     }
