@@ -27,9 +27,31 @@ class ProductTest extends TestCase
         $this->mockEnabled = true;
     }
 
+    public function testArrays()
+    {
+        $txt1 = 'White,8';
+        $arr1 = ['White', 8];
+
+        $txt2 = '5';
+        $arr2 = ['5'];
+
+        $this->assertTrue($arr1 == explode(',', $txt1));
+        $this->assertFalse($arr1 === explode(',', $txt1));
+        $this->assertTrue($arr2 === explode(',', $txt2));
+    }
+
+    public function testCall()
+    {
+        $product = new Inventory($this->token, 100);
+        $res = $product->getProductStockNumbers('10548798');
+        print(var_export($res, true));
+    }
+
     public function testGetProductStockNumBySku()
     {
         $product = new Inventory($this->token);
+
+        $productStockNum = '1559066387';
 
         $xmlResponse = <<<EOT
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -41,7 +63,7 @@ class ProductTest extends TestCase
         <mixOptNo>2,1</mixOptNo>
         <optWght>0</optWght>
         <prdNo>6173252</prdNo>
-        <prdStckNo>1559066387</prdStckNo>
+        <prdStckNo>$productStockNum</prdStckNo>
         <prdStckStatCd>01</prdStckStatCd>
         <selQty>10</selQty>
         <stckQty>3</stckQty>
@@ -71,8 +93,8 @@ EOT;
 
         $sku = 'SPT9BR';
 
-        $mock = Mockery::mock('Illuminate\Database\Eloquent\Model', 'App\Model\Product');
-        $mock->shouldReceive('raw->findOne')->andReturn(json_decode('{
+        $mock = Mockery::mock('overload:App\Model\ChannelProduct');
+        $mock->shouldReceive('raw->findOne')->once()->andReturn(json_decode('{
     "_id" : "56bdaf25e4e41fbd1e1833f5",
     "channel" : "elevenia",
     "partnerId" : 303,
@@ -80,25 +102,18 @@ EOT;
     "prdName" : "Sepatu Mbak Titi",
     "items" : [
         {
-            "sku" : "SPT9BR",
+            "sku" : "'.$sku.'",
             "variant" : [
                 "Brown",
                 "9"
             ]
-        },
-        {
-            "sku" : "SP8WT",
-            "variant" : [
-                "White",
-                "8"
-            ]
         }
     ]
-}'));
+}', true));
 
-        $stockNum = $product->getProductStockNumberBySku($sku);
-
-        $this->assertEquals('1559066387', $stockNum);
+        $res = $product->getProductStockNumberBySku($sku);
+        $this->assertEquals($res['code'], 200);
+        $this->assertEquals($res['body'], $productStockNum);
     }
 
     public function testServerClientNetworkError()

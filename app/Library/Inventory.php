@@ -1,6 +1,7 @@
 <?php
 namespace App\Library;
 
+use App\Model\ChannelProduct;
 use App\Model\Product;
 use SimpleXMLElement;
 
@@ -47,12 +48,43 @@ class Inventory
         return $res;
     }
 
-    public function getProductStockNumberBySku($productNum)
+    /**
+     * @param $sku aCommerce's SKU
+     * @return string|bool|null Returns prdStckNo. If data not found in DB, returns false.
+     */
+    public function getProductStockNumberBySku($sku)
     {
-        // get prdNo & variant from mongodb
-        // get list of prdStckNo from elevenia
-        // match variant from mongodb with elevenia to get prdStckNo
+        $row = ChannelProduct::raw()->findOne(['channel'=>'elevenia','items.sku' => $sku], ['prdNo', 'partnerId', 'items.$']);
+        if ($row === null) {
+            return [
+                'code' => 404,
+                'message' => 'SKU not found in DB',
+            ];
+        }
 
+        $res = $this->getProductStockNumbers($row['prdNo']);
+
+        if ($res['code'] !== 200) {
+            return $res;
+        }
+
+        $item = $row['items'][0];
+
+        foreach ($res['body']['ProductStock'] as $productStock) {
+            $mixDtlOptNm = isset($productStock['mixDtlOptNm']) ? $productStock['mixDtlOptNm'] : '';
+            $stockOptions = explode(',', $mixDtlOptNm);
+            if ($item['variant'] == $stockOptions) {
+                return [
+                    'code' => 200,
+                    'body' => $productStock['prdStckNo'],
+                ];
+            }
+        }
+
+        return [
+            'code' => 404,
+            'message' => 'Option not found in stock numbers',
+        ];
     }
 
     public function updateProductStock($productId, $productStockNum, $stockQty)
