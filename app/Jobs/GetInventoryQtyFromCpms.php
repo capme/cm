@@ -77,7 +77,8 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
         $inventoryAllocation = new InventoryAllocation();
 
         $url = getenv("CPMS_PROTOCOL") . "fulfillment." . getenv("CPMS_BASE_API_URL") . "/channel/"
-            . $this->channel['cpms']['channelId'] . "/allocation/merchant" . $this->partnerId;
+            . $this->channel['cpms']['channelId'] . "/allocation/merchant/" . $this->partnerId;
+
         $res = $inventoryAllocation->get($token, $url);
 
         if ($res['message'] != 'success') {
@@ -92,13 +93,21 @@ class GetInventoryQtyFromCpms extends Job implements ShouldQueue
 
             $this->release();
             return;
-
         }
 
-        foreach($res['body'] as $itemSku){
-            // TODO - dispatch job to update Inventory quantity
-            //$this->dispatch(new UpdateInventoryQtyToChannel($itemSku));
+        if (!is_array($res['body'])) {
+            Log::error('Invalid response from CPMS', [
+                'res' => $res,
+            ]);
+            $this->release();
+            return;
         }
 
+        if (count($res['body'])) {
+            foreach($res['body'] as $itemSku){
+                Log::info('Send SKU '.$itemSku['sku'].' to job update qty channel');
+                $this->dispatch(new UpdateInventoryQtyToChannel($this->partnerId, $itemSku));
+            }
+        }
     }
 }

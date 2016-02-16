@@ -16,7 +16,9 @@ class Kernel extends ConsoleKernel
         Commands\SalesOrderCreate::class,
         Commands\SalesOrderUpdate::class,
         Commands\InventorySync::class,
-        Commands\ProductList::class
+        Commands\ProductList::class,
+        Commands\ProductExportFromChannel::class,
+        Commands\ProductImportToDB::class,
     ];
 
     /**

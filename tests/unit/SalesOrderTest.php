@@ -768,6 +768,74 @@ class SalesOrderTest extends TestCase
         return json_decode($orderElevenia, true);
     }
 
+
+    public function testGetItemIdWithTwoVariant()
+    {
+        $orderEleveniaFormat = '{"addPrdNo":"0","addPrdYn":"N","appmtDdDlvDy":"General shipping","buyMemNo":"26000820","delvlaceSeq":"140116459","dlvCstStlTypNm":"Prepaid Delivery Fee","dlvEtprsCd":"00301","dlvEtprsNm":"TIKI Regular","dlvKdCdName":"General shipping","dlvMthdCd":"01","dlvMthdCdNm":"Courier service","dlvNo":"8000028703","invcUpdateDt":[],"lstDlvCst":"9,000","memId":"mobi***********************","ordDlvReqCont":[],"ordDt":"2016/01/13","ordNm":"Elevenia","ordNo":"201601136157208","ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","ordStlEndDt":"2016/01/13 17:32:57","orderAmt":"25000","rcvrBaseAddr":"Andir Kota Bandung JAWA BARAT UKNOWN","rcvrMailNo":"SMI-009008","rcvrNm":"Elevenia","rcvrPrtblNo":"0878-81181818","rcvrTlphn":"0878-81181818","selFeeAmt":"32750","selFeeRt":"1,250(5.00%)","selFixedFee":"5.00(%)","selPrc":"25000","sellerDscPrc":"0","sellerPrdCd":"FRSIANPRODUCT000002","sndPlnDd":[],"tmallApplyDscAmt":"0","productList":[{"advrt_stmt":[],"appmtDdDlvDy":"General shipping","atmt_buy_cnfrm_yn":[],"barCode":[],"batchYn":"false","bonusDscAmt":"0","bonusDscGb":[],"bonusDscRt":"0.0","chinaSaleYn":[],"ctgrCupnExYn":"N","ctgrPntPreRt":[],"ctgrPntPreRtAmt":[],"cupnDlv":"0","deliveryTimeOut":"false","delvplaceSeq":"140116459","dlvInsOrgCst":"0","dlvNo":"8000028703","dlvRewardAmt":"0","errMsg":[],"finalDscPrc":[],"firstDscAmt":"0","fixedDlvPrd":"false","giftPrdOptNo":"0","imgurl":[],"isChangePayMethod":"N","isHistory":"Y","limitDt":[],"lowPrcCompYn":[],"mileDscAmt":"0.0","mileDscRt":"0.0","mileSaveAmt":"0.0","mileSaveRt":"0.0","ordPrdCpnAmtWithoutJang":"0","ordPrdRewardAmt":[],"ordPrdRewardItmCd":[],"ordPrdRewardItmCdNm":[],"ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","orgBonusDscRt":"0.0","pluDscAmt":"0","pluDscBasis":"0","pluDscRt":"0.0","plusDscOcbRwd":"0","prdNm":"Product FRSIANPRODUCT000002 New","prdNo":"19281760","prdOptSpcNo":"0","prdTtoDisconAmt":"0","prdTypCd":"01","procReturnDlvCstByBndl":"false","returnDlvCstByBndl":"0","rfndMtdCd":[],"optNm":"Size:M,Color:White","selPrc":"25000","stPntDscAmt":"0.0","stPntDscRt":"0.0","stlStat":[],"tiketSelPrc":"0","tiketTransFee":"0","visitDlvYn":"N","prdClfCdNm":"Ready Stock"}]}';
+        $orderEleveniaFormat = json_decode($orderEleveniaFormat, true);
+        Mockery::mock('overload:App\Model\ChannelProduct')
+            ->shouldReceive("raw->aggregate")
+            ->andReturn([
+                "result" => [
+                    [
+                        "items" => [
+                            "sku" => "KSMBR"
+                        ]
+                    ]
+                ],
+                "ok" => 1
+            ]);
+
+        $order = new Order($this->token);
+
+        $res = $order->parseOrderFromEleveniaToCpms(303, $orderEleveniaFormat);
+
+    }
+
+    public function testGetItemIdNoVariant()
+    {
+        $orderEleveniaFormat = '{"addPrdNo":"0","addPrdYn":"N","appmtDdDlvDy":"General shipping","buyMemNo":"26000820","delvlaceSeq":"140116459","dlvCstStlTypNm":"Prepaid Delivery Fee","dlvEtprsCd":"00301","dlvEtprsNm":"TIKI Regular","dlvKdCdName":"General shipping","dlvMthdCd":"01","dlvMthdCdNm":"Courier service","dlvNo":"8000028703","invcUpdateDt":[],"lstDlvCst":"9,000","memId":"mobi***********************","ordDlvReqCont":[],"ordDt":"2016/01/13","ordNm":"Elevenia","ordNo":"201601136157208","ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","ordStlEndDt":"2016/01/13 17:32:57","orderAmt":"25000","rcvrBaseAddr":"Andir Kota Bandung JAWA BARAT UKNOWN","rcvrMailNo":"SMI-009008","rcvrNm":"Elevenia","rcvrPrtblNo":"0878-81181818","rcvrTlphn":"0878-81181818","selFeeAmt":"32750","selFeeRt":"1,250(5.00%)","selFixedFee":"5.00(%)","selPrc":"25000","sellerDscPrc":"0","sellerPrdCd":"FRSIANPRODUCT000002","sndPlnDd":[],"tmallApplyDscAmt":"0","productList":[{"advrt_stmt":[],"appmtDdDlvDy":"General shipping","atmt_buy_cnfrm_yn":[],"barCode":[],"batchYn":"false","bonusDscAmt":"0","bonusDscGb":[],"bonusDscRt":"0.0","chinaSaleYn":[],"ctgrCupnExYn":"N","ctgrPntPreRt":[],"ctgrPntPreRtAmt":[],"cupnDlv":"0","deliveryTimeOut":"false","delvplaceSeq":"140116459","dlvInsOrgCst":"0","dlvNo":"8000028703","dlvRewardAmt":"0","errMsg":[],"finalDscPrc":[],"firstDscAmt":"0","fixedDlvPrd":"false","giftPrdOptNo":"0","imgurl":[],"isChangePayMethod":"N","isHistory":"Y","limitDt":[],"lowPrcCompYn":[],"mileDscAmt":"0.0","mileDscRt":"0.0","mileSaveAmt":"0.0","mileSaveRt":"0.0","ordPrdCpnAmtWithoutJang":"0","ordPrdRewardAmt":[],"ordPrdRewardItmCd":[],"ordPrdRewardItmCdNm":[],"ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","orgBonusDscRt":"0.0","pluDscAmt":"0","pluDscBasis":"0","pluDscRt":"0.0","plusDscOcbRwd":"0","prdNm":"Product FRSIANPRODUCT000002 New","prdNo":"6299304","prdOptSpcNo":"0","prdTtoDisconAmt":"0","prdTypCd":"01","procReturnDlvCstByBndl":"false","returnDlvCstByBndl":"0","rfndMtdCd":[],"selPrc":"25000","stPntDscAmt":"0.0","stPntDscRt":"0.0","stlStat":[],"tiketSelPrc":"0","tiketTransFee":"0","visitDlvYn":"N","prdClfCdNm":"Ready Stock"}]}';
+        $orderEleveniaFormat = json_decode($orderEleveniaFormat, true);
+        Mockery::mock('overload:App\Model\ChannelProduct')
+            ->shouldReceive("raw->aggregate")
+            ->andReturn([
+                "result" => [
+                    [
+                        "items" => [
+                            "sku" => "KSMBR"
+                        ]
+                    ]
+                ],
+                "ok" => 1
+            ]);
+
+        $order = new Order($this->token);
+
+        $res = $order->parseOrderFromEleveniaToCpms(303, $orderEleveniaFormat);
+    }
+
+    public function testGetItemIdOneVariant()
+    {
+        $orderEleveniaFormat = '{"addPrdNo":"0","addPrdYn":"N","appmtDdDlvDy":"General shipping","buyMemNo":"26000820","delvlaceSeq":"140116459","dlvCstStlTypNm":"Prepaid Delivery Fee","dlvEtprsCd":"00301","dlvEtprsNm":"TIKI Regular","dlvKdCdName":"General shipping","dlvMthdCd":"01","dlvMthdCdNm":"Courier service","dlvNo":"8000028703","invcUpdateDt":[],"lstDlvCst":"9,000","memId":"mobi***********************","ordDlvReqCont":[],"ordDt":"2016/01/13","ordNm":"Elevenia","ordNo":"201601136157208","ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","ordStlEndDt":"2016/01/13 17:32:57","orderAmt":"25000","rcvrBaseAddr":"Andir Kota Bandung JAWA BARAT UKNOWN","rcvrMailNo":"SMI-009008","rcvrNm":"Elevenia","rcvrPrtblNo":"0878-81181818","rcvrTlphn":"0878-81181818","selFeeAmt":"32750","selFeeRt":"1,250(5.00%)","selFixedFee":"5.00(%)","selPrc":"25000","sellerDscPrc":"0","sellerPrdCd":"FRSIANPRODUCT000002","sndPlnDd":[],"tmallApplyDscAmt":"0","productList":[{"advrt_stmt":[],"appmtDdDlvDy":"General shipping","atmt_buy_cnfrm_yn":[],"barCode":[],"batchYn":"false","bonusDscAmt":"0","bonusDscGb":[],"bonusDscRt":"0.0","chinaSaleYn":[],"ctgrCupnExYn":"N","ctgrPntPreRt":[],"ctgrPntPreRtAmt":[],"cupnDlv":"0","deliveryTimeOut":"false","delvplaceSeq":"140116459","dlvInsOrgCst":"0","dlvNo":"8000028703","dlvRewardAmt":"0","errMsg":[],"finalDscPrc":[],"firstDscAmt":"0","fixedDlvPrd":"false","giftPrdOptNo":"0","imgurl":[],"isChangePayMethod":"N","isHistory":"Y","limitDt":[],"lowPrcCompYn":[],"mileDscAmt":"0.0","mileDscRt":"0.0","mileSaveAmt":"0.0","mileSaveRt":"0.0","ordPrdCpnAmtWithoutJang":"0","ordPrdRewardAmt":[],"ordPrdRewardItmCd":[],"ordPrdRewardItmCdNm":[],"ordPrdSeq":"1","ordPrdStat":"202","ordQty":"1","orgBonusDscRt":"0.0","pluDscAmt":"0","pluDscBasis":"0","pluDscRt":"0.0","plusDscOcbRwd":"0","prdNm":"Product FRSIANPRODUCT000002 New","prdNo":"6299304","prdOptSpcNo":"0","prdTtoDisconAmt":"0","prdTypCd":"01","procReturnDlvCstByBndl":"false","returnDlvCstByBndl":"0","rfndMtdCd":[],"selPrc":"25000","stPntDscAmt":"0.0","stPntDscRt":"0.0","stlStat":[],"tiketSelPrc":"0","tiketTransFee":"0","visitDlvYn":"N","prdClfCdNm":"Ready Stock"}]}';
+        $orderEleveniaFormat = json_decode($orderEleveniaFormat, true);
+        Mockery::mock('overload:App\Model\ChannelProduct')
+            ->shouldReceive("raw->aggregate")
+            ->andReturn([
+                "result" => [
+                    [
+                        "items" => [
+                            "sku" => "KSMBR"
+                        ]
+                    ]
+                ],
+                "ok" => 1
+            ]);
+
+        $order = new Order($this->token);
+
+        $res = $order->parseOrderFromEleveniaToCpms(303, $orderEleveniaFormat);
+    }
+
     private function mockSalesOrder(Order $order, array $queue)
     {
         if (!$this->mockEnabled) return;

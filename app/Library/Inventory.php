@@ -1,6 +1,7 @@
 <?php
 namespace App\Library;
 
+use App\Model\ChannelProduct;
 use App\Model\Product;
 use SimpleXMLElement;
 
@@ -20,11 +21,96 @@ class Inventory
         $this->token = $token;
     }
 
-    public function getListProduct()
+    public function getListProduct($page = 1)
     {
-        $url = $this->baseUrl . '/prodservices/product/list';
+        $url = $this->baseUrl . '/prodservices/product/list?page='.$page;
 
         $res = $this->request('GET', $url);
+
+        return $res;
+    }
+
+    public function getProductDetail($productNum)
+    {
+        $url = $this->baseUrl . '/prodservices/product/details/'.$productNum;
+
+        $res = $this->request('GET', $url);
+
+        return $res;
+    }
+
+    public function getProductStockNumbers($productNum)
+    {
+        $url = $this->baseUrl . '/prodmarketservice/prodmarket/stck/' . $productNum;
+
+        $res = $this->request('GET', $url);
+
+        return $res;
+    }
+
+    /**
+     * @param $sku aCommerce's SKU
+     * @return string|bool|null Returns prdStckNo. If data not found in DB, returns false.
+     */
+    public function getProductStockNumberBySku($sku)
+    {
+        $row = ChannelProduct::raw()->findOne(['channel'=>'elevenia','items.sku' => $sku], ['prdNo', 'partnerId', 'items.$']);
+        if ($row === null) {
+            return [
+                'code' => 404,
+                'message' => 'SKU not found in DB',
+            ];
+        }
+
+        $res = $this->getProductStockNumbers($row['prdNo']);
+
+        if ($res['code'] !== 200) {
+            return $res;
+        }
+
+        $item = $row['items'][0];
+
+        foreach ($res['body']['ProductStock'] as $productStock) {
+            $mixDtlOptNm = isset($productStock['mixDtlOptNm']) ? $productStock['mixDtlOptNm'] : '';
+            $stockOptions = explode(',', $mixDtlOptNm);
+            if ($item['variant'] == $stockOptions) {
+                return [
+                    'code' => 200,
+                    'body' => $productStock,
+                ];
+            }
+        }
+
+        return [
+            'code' => 404,
+            'message' => 'Option not found in stock numbers',
+        ];
+    }
+
+    public function updateProductStock($sku, $stockQty)
+    {
+        $res = $this->getProductStockNumberBySku($sku);
+        if ($res['code'] !== 200) {
+            return $res;
+        }
+
+        $prdNo = $res['body']['prdNo'];
+        $prdStckNo = $res['body']['prdStckNo'];
+
+        $url = $this->baseUrl . '/prodservices/stockqty/' . $prdStckNo;
+
+        $body = <<<EOT
+<?xml version="1.0" encoding="UTF-8"?>
+<ProductStock>
+  <prdNo>$prdNo</prdNo>
+  <prdStckNo>$prdStckNo</prdStckNo>
+  <stckQty>$stockQty</stckQty>
+</ProductStock>
+EOT;
+
+        $res = $this->request('PUT', $url, [
+            'body' => $body,
+        ]);
 
         return $res;
     }

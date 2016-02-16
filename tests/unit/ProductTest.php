@@ -27,6 +27,88 @@ class ProductTest extends TestCase
         $this->mockEnabled = true;
     }
 
+    public function testArrays()
+    {
+        $txt1 = 'White,8';
+        $arr1 = ['White', 8];
+
+        $txt2 = '5';
+        $arr2 = ['5'];
+
+        $this->assertTrue($arr1 == explode(',', $txt1));
+        $this->assertFalse($arr1 === explode(',', $txt1));
+        $this->assertTrue($arr2 === explode(',', $txt2));
+    }
+
+    public function testGetProductStockNumBySku()
+    {
+        $product = new Inventory($this->token);
+
+        $productStockNum = '1559066387';
+
+        $xmlResponse = <<<EOT
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProductStocks>
+    <ProductStock>
+        <addPrc>0</addPrc>
+        <mixDtlOptNm>Brown,9</mixDtlOptNm>
+        <mixOptNm>,Size</mixOptNm>
+        <mixOptNo>2,1</mixOptNo>
+        <optWght>0</optWght>
+        <prdNo>6173252</prdNo>
+        <prdStckNo>$productStockNum</prdStckNo>
+        <prdStckStatCd>01</prdStckStatCd>
+        <selQty>10</selQty>
+        <stckQty>3</stckQty>
+    </ProductStock>
+    <ProductStock>
+        <addPrc>0</addPrc>
+        <mixDtlOptNm>White,8</mixDtlOptNm>
+        <mixOptNm>,Size</mixOptNm>
+        <mixOptNo>2,1</mixOptNo>
+        <optWght>0</optWght>
+        <prdNo>6173252</prdNo>
+        <prdStckNo>1559066388</prdStckNo>
+        <prdStckStatCd>01</prdStckStatCd>
+        <selQty>0</selQty>
+        <stckQty>8</stckQty>
+    </ProductStock>
+    <prdNm>Sepatu Mbak Titi</prdNm>
+    <prdNo>19281740</prdNo>
+    <productComponents/>
+    <sellerPrdCd>null</sellerPrdCd>
+</ProductStocks>
+EOT;
+
+        $this->mockProduct($product, [
+            new Response(200, [], $xmlResponse)
+        ]);
+
+        $sku = 'SPT9BR';
+
+        $mock = Mockery::mock('overload:App\Model\ChannelProduct');
+        $mock->shouldReceive('raw->findOne')->once()->andReturn(json_decode('{
+    "_id" : "56bdaf25e4e41fbd1e1833f5",
+    "channel" : "elevenia",
+    "partnerId" : 303,
+    "prdNo" : 19281740,
+    "prdName" : "Sepatu Mbak Titi",
+    "items" : [
+        {
+            "sku" : "'.$sku.'",
+            "variant" : [
+                "Brown",
+                "9"
+            ]
+        }
+    ]
+}', true));
+
+        $res = $product->getProductStockNumberBySku($sku);
+        $this->assertEquals($res['code'], 200);
+        $this->assertEquals($res['body']['prdStckNo'], $productStockNum);
+    }
+
     public function testServerClientNetworkError()
     {
         $product = new Inventory($this->token);
