@@ -2,13 +2,15 @@
 
 namespace App\Library;
 
-use App\Model\SalesOrder;
 use SimpleXMLElement;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\ConnectException;
+
+use App\Model\SalesOrder;
+use App\Model\ChannelProduct;
 
 class Order
 {
@@ -93,14 +95,56 @@ class Order
 		return $res;
 	}
 
+	public function getItemId($partnerId, $productList)
+	{
+		$item_variant = null;
+
+		if (isset($productList['optNm'])) {
+			$patern = '/:([\w\s-()]+)/';
+			$string = $productList['optNm'];
+			preg_match_all($patern, $string, $matches);
+			$item_variant = $matches[1];
+		}
+
+		$matches = [
+			'channel' => 'elevenia',
+			'partnerId' => (int)$partnerId,
+			'prdNo' => (int)$productList['prdNo'],
+			'items.variant' => [],
+		];
+
+		if ($item_variant) {
+			$matches['items.variant'] = $item_variant;
+		}
+
+		$channelProduct = ChannelProduct::raw()->aggregate([
+			['$unwind' => '$items'],
+			['$match' => $matches],
+			['$project'=>['items.sku' => true, '_id' => false]]
+		]);
+
+		if ($channelProduct['result']) {
+			return $channelProduct['result'][0]['items']['sku'];
+		}
+
+		return 0;
+	}
+
 	public function parseOrderFromEleveniaToCpms($partnerId, $orderElev)
 	{
 		$orderItem = [];
 		foreach($orderElev['productList'] as $val)
 		{
+
+			if (isset($val['sellerPrdCd'])) {
+				$itemId = $val['sellerPrdCd'];
+			} else {
+				$itemId = $this->getItemId($partnerId, $val);
+			}
+
 			$orderItem[] = [
 				"partnerId" => "$partnerId",
-				"itemId" => $val['sellerPrdCd'],
+				"itemId" => $itemId,
 				"qty" => (int)$val['ordQty'],
 				"subTotal" => (float)number_format($val['ordQty'] * $val['selPrc'], 2, ".", "")
 			];
@@ -206,6 +250,11 @@ class Order
 			$orderProduct['prdClfCdNm'] = $elevOrder['prdClfCdNm'];
 			$orderProduct['prdNm'] = $elevOrder['prdNm'];
 			$orderProduct['prdNo'] = $elevOrder['prdNo'];
+
+			if (isset($elevOrder['optNm'])) {
+				$orderProduct['optNm'] = $elevOrder['optNm'];
+			}
+
 			if (!isset($parsedOrders[$ordNo])) {
 				unset($elevOrder['prdClfCdNm'], $elevOrder['prdNm'], $elevOrder['prdNo'], $elevOrder['orderProduct']);
 				$elevOrder['productList'] = [];

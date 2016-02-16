@@ -2,8 +2,12 @@
 
 namespace App\Console\Commands;
 
+use League\Csv\Reader;
+
 use Illuminate\Console\Command;
 use App\Model\ChannelProduct;
+
+
 
 class ProductImportToDB extends Command
 {
@@ -12,7 +16,7 @@ class ProductImportToDB extends Command
      *
      * @var string
      */
-    protected $signature = 'product:importtodb {partnerId} {input}';
+    protected $signature = 'product:importtodb {partnerId} {file}';
 
     /**
      * The console command description.
@@ -21,7 +25,7 @@ class ProductImportToDB extends Command
      */
     protected $description = 'Import products from CSV to DB';
     protected $partnerId;
-    protected $inputFile;
+    protected $file;
 
     /**
      * Create a new command instance.
@@ -40,65 +44,44 @@ class ProductImportToDB extends Command
      */
     public function handle()
     {
-
-        $this->inputFile = $this->argument('input');
         $this->partnerId = $this->argument('partnerId');
+        $this->file = $this->argument('file');
         try {
-            $fp = fopen($this->inputFile, 'r');
-            $rows = array();
-            while (!feof($fp)) {
-                $data = fgetcsv($fp);
-                $prdNo = $data[0];
-                $prdName = $data[1];
 
-                if(trim($prdName) != "Name") {
-                    $rows[$prdNo . "|" . $prdName][] = $data;
+            $csv = Reader::createFromPath($this->file);
+            $res = $csv->setOffset(1)->fetchAll();
+            $channelProduct = [];
+            foreach ($res as $val) {
+                if (isset($channelProduct[$val[0]])) {
+                    $add = [
+                        "sku" => trim($val[4]),
+                        "variant" => []
+                    ];
+                    if ($val[2]) array_push($add['variant'], $val[2]);
+                    if ($val[3]) array_push($add['variant'], $val[3]);
+                    array_push($channelProduct[$val[0]]['items'], $add);
+                } else {
+                    $channelProduct[$val[0]] = [
+                        "channel" => "elevenia",
+                        "partnerId" => (int)$this->partnerId,
+                        "prdNo" => (int)$val[0],
+                        "prdName" => trim($val[1]),
+                        "items" => [
+                            [
+                                "sku" => trim($val[4]),
+                                "variant" => []
+                            ]
+                        ]
+                    ];
+
+                    if ($val[2]) array_push($channelProduct[$val[0]]['items'][0]['variant'], $val[2]);
+                    if ($val[3]) array_push($channelProduct[$val[0]]['items'][0]['variant'], $val[3]);
                 }
             }
-            fclose($fp);
 
-            foreach($rows as $key => $value) {
-                $arr = explode("|",$key);
-                if(trim($arr[0]) == "") continue;
-                $product = [
-                    "channel" => "elevenia",
-                    "partnerId" => $this->partnerId,
-                    "prdNo" => $arr[0],
-                    "prdName" => $arr[1],
-                    "items" => []
-                ];
-                foreach($value as $itemValue){
-                    if(trim($itemValue[2]) != "" && trim($itemValue[3]) != "")
-                    {
-                        $variant = [$itemValue[2], $itemValue[3]];
-                    }
-                    elseif(trim($itemValue[2]) == "" && trim($itemValue[3]) != "")
-                    {
-                        $variant = [$itemValue[3]];
-                    }
-                    elseif(trim($itemValue[3]) == "" && trim($itemValue[2]) != "")
-                    {
-                        $variant = [$itemValue[2]];
-                    }
-                    else
-                    {
-                        $variant = [];
-                    }
-                    $product["items"][] =
-                        [
-                            "sku" => $itemValue[4],
-                            "variant" => $variant
-                        ];
-                }
+            ChannelProduct::raw()->remove(['partnerId'=>(int)$this->partnerId, 'channel' => 'elevenia']);
+            ChannelProduct::raw()->batchInsert($channelProduct);
 
-
-
-                ChannelProduct::raw()->update(
-                    $product,
-                    ['$setOnInsert' => $product],
-                    ["upsert" => true]
-                );
-            }
 
             $this->info(sprintf('Successfully import products to DB'));
         } catch (\Exception $e) {
