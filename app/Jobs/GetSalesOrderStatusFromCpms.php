@@ -101,7 +101,7 @@ class GetSalesOrderStatusFromCpms extends Job implements ShouldQueue
 
         }
 
-        $data = $res['body'][0];
+        $data = end($res['body']);
 
         if (!isset($data['shipPackage'][0]['trackingId'])) {
             Log::debug("GetSalesOrderStatusFromCpms", [
