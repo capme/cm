@@ -46,6 +46,7 @@ class ProductImportToDB extends Command
         try {
             $fp = fopen($this->inputFile, 'r');
             $rows = array();
+            $this->info('Reading and parsing from '.$this->inputFile);
             while (!feof($fp)) {
                 $data = fgetcsv($fp);
                 $prdNo = $data[0];
@@ -57,12 +58,14 @@ class ProductImportToDB extends Command
             }
             fclose($fp);
 
+            $this->info('Saving to DB');
+
             foreach($rows as $key => $value) {
                 $arr = explode("|",$key);
                 if(trim($arr[0]) == "") continue;
                 $product = [
                     "channel" => "elevenia",
-                    "partnerId" => $this->partnerId,
+                    "partnerId" => (int)$this->partnerId,
                     "prdNo" => $arr[0],
                     "prdName" => $arr[1],
                     "items" => []
@@ -91,8 +94,6 @@ class ProductImportToDB extends Command
                         ];
                 }
 
-
-
                 ChannelProduct::raw()->update(
                     $product,
                     ['$setOnInsert' => $product],
@@ -100,7 +101,7 @@ class ProductImportToDB extends Command
                 );
             }
 
-            $this->info(sprintf('Successfully import products to DB'));
+            $this->info('Successfully import products to DB');
         } catch (\Exception $e) {
             $this->info("Failed import products to DB. ".$e->getMessage());
         }
