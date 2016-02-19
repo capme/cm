@@ -7,8 +7,6 @@ use League\Csv\Reader;
 use Illuminate\Console\Command;
 use App\Model\ChannelProduct;
 
-
-
 class ProductImportToDB extends Command
 {
     /**
@@ -47,10 +45,11 @@ class ProductImportToDB extends Command
         $this->partnerId = $this->argument('partnerId');
         $this->file = $this->argument('file');
         try {
-
+            $this->info('Reading and parsing from '.$this->file);
             $csv = Reader::createFromPath($this->file);
             $res = $csv->setOffset(1)->fetchAll();
             $channelProduct = [];
+            $this->info('Saving to DB');
             foreach ($res as $val) {
                 if (isset($channelProduct[$val[0]])) {
                     $add = [
