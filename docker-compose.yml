@@ -1,0 +1,19 @@
+phpjobs:
+  image: kucing/php56
+  command: php artisan queue:listen --sleep=3 --tries=3
+  volumes:
+    - .:/var/www/html
+  working_dir: /var/www/html
+  links:
+    - cmredis
+  extra_hosts:
+      - "api.elevenia.co.id:112.215.119.91"
+
+logdisp:
+  image: ubuntu:latest
+  command: tail -f /var/www/html/storage/logs/laravel.log
+  volumes:
+      - .:/var/www/html
+
+cmredis:
+  image: redis

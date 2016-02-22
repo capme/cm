@@ -1,0 +1,7 @@
+/vendor
+/coverage
+composer.lock
+.DS_Store
+.idea
+.env
+/storage
