@@ -86,6 +86,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
 
         $res = $salesOrder->create($token, $url, $order);
 
+
         if ($res['message'] != 'success' && $res['code'] != 501) {
             Log::error('CreateSalesOrderToCpms', [
                 'message' => 'Create sales order to cpms',
@@ -98,6 +99,7 @@ class CreateSalesOrderToCpms extends Job implements ShouldQueue
 
             return;
         } else { // if success create sales order to CPMS update channel to set accept order
+            $order->save($this->partner['partnerId'], $this->orderElev);
             $this->dispatch(new UpdateSalesOrderToChannel([
                 "partnerId" => $this->partner['partnerId'],
                 "channel" => ["order" => $this->orderElev]
