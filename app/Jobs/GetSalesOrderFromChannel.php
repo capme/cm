@@ -74,7 +74,6 @@ class GetSalesOrderFromChannel extends Job implements ShouldQueue
         $orders = $order->parseOrdersFromElevenia($res['body']['order']);
         foreach ($orders as $orderElev) {
 
-            $order->save($this->partner['partnerId'], $orderElev);
             Log::debug('GetSalesOrderFromChannel', [
                 'message' => 'save to mongodb has been succeed',
                 'channel' => 'elevenia',
